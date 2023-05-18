@@ -33,6 +33,16 @@ You can download [Docker Desktop for Mac](https://docs.docker.com/desktop/instal
 
 1. To stop the nodes and delete output files, run `make clean`.
 
+## Monitor Hadoop Cluster by WebUI
+
+* Namenode: http://localhost:9870
+* Datanode: http://localhost:9864
+* Resourcemanager: http://localhost:8088
+* Nodemanager: http://localhost:8042
+* Historyserver: http://localhost:8188
+
+> Note If you are redirected to a URL like http://119e8b128bd5:8042/ or http://resourcemanager:8088/, change the host name to localhost (i.e. http://localhost:8042/) and it will work. This is because Docker containers use their own IPs which are mapped to different names.
+
 ## Features
 
 TODO
@@ -41,7 +51,7 @@ TODO
 
 * [Apache Hadoop v3.3.1](https://hadoop.apache.org/)
 * [Docker Engine v23.0](https://docs.docker.com/engine/reference/run/)
-- [Docker Compose v2.17](https://docs.docker.com/compose/reference/)
+* [Docker Compose v2.17](https://docs.docker.com/compose/reference/)
 * [Java v1.8.0_322](https://www.oracle.com/java/technologies/downloads/)
 
 ## License
