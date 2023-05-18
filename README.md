@@ -15,6 +15,7 @@ and different descriptive statistics methods based on the MapReduce Framework.
 - [Features](#features)
 - [Technologies](#technologies)
 - [License](#license)
+- [Credits](#credits)
 - [Contributors](#contributors)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -66,6 +67,10 @@ TODO
 ## License
 
 MapReduce on Stackoverflow Dataset is free software published under the MIT license. See [LICENSE](LICENSE) for details.
+
+## Credits
+
+Docker Hadoop Cluster setup files are taken from [@wxw-matt](https://github.com/wxw-matt/docker-hadoop).
 
 ## Contributors
 
