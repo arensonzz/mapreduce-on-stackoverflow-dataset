@@ -1,0 +1,17 @@
+.git
+.idea
+
+# Java intermediary and build files
+out
+target
+lib
+dependency-reduced-pom.xml
+
+# Environment variable files (might contain sensitive information)
+.env*
+!.env.example
+
+# Do not track MapReduce result files
+/jobs/*
+!/jobs/data/
+!/jobs/jars/
