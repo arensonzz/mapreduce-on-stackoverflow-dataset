@@ -30,7 +30,6 @@ services:
       retries: 20
       start_period: 3s
 
-
   datanode:
     image: wxwmatt/hadoop-datanode:2.1.1-hadoop3.3.1-java8
     build:

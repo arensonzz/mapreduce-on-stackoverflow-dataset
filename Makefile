@@ -22,11 +22,13 @@ wordcount:
 	./hdfs dfs -put /app/data/test.txt /test_input
 	./hdfs dfs -rm -r -f /test_output
 	./hadoop jar /app/jars/WordCount.jar WordCount /test_input /test_output
-	./hdfs  dfs -ls /test_output
-	./hdfs  dfs -cat /test_output/part*
+	./hdfs dfs -get /test_output /app/res
+	./hdfs dfs -ls /test_output
+	./hdfs dfs -cat /test_output/part*
 
 clean:
 	# Clean target run
+	docker exec namenode rm -r /app/res/*
 	docker compose down --volumes
 
 
