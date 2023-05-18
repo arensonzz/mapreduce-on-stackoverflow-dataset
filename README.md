@@ -8,6 +8,15 @@ and different descriptive statistics methods based on the MapReduce Framework.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 ## Contents
 
+- [About](#about)
+- [Requirements](#requirements)
+- [Run the Example Map-Reduce Job on the Cluster](#run-the-example-map-reduce-job-on-the-cluster)
+- [Monitor Hadoop Cluster by WebUI](#monitor-hadoop-cluster-by-webui)
+- [Features](#features)
+- [Technologies](#technologies)
+- [License](#license)
+- [Contributors](#contributors)
+
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## About
