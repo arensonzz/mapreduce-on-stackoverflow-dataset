@@ -40,8 +40,10 @@ copy-jar:
 	cp mapreduce/target/mapreduce-stackoverflow-1.0.jar jobs/jars
 
 clean:
-	# Clean target run
-	docker exec namenode rm -r /app/res/*
+	# Clear the /jobs/res directory
+	docker exec namenode find /app/res -mindepth 1 -delete
+	@touch jobs/res/.gitkeep
+	# Stop Hadoop cluster
 	docker compose down --volumes
 
 
