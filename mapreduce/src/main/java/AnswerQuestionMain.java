@@ -18,8 +18,8 @@ public class AnswerQuestionMain {
 
         // Set input format and path
         job.setInputFormatClass(TextInputFormat.class);
-        TextInputFormat.addInputPath(job, new Path("answers.csv"));
-        TextInputFormat.addInputPath(job, new Path("questions.csv"));
+        TextInputFormat.addInputPath(job, new Path("/input/Answers.csv"));
+        TextInputFormat.addInputPath(job, new Path("/input/Questions.csv"));
 
         // Set Mapper class and output key-value types
         job.setMapperClass(AnswerQuestionMapper.class);
@@ -33,7 +33,7 @@ public class AnswerQuestionMain {
 
         // Set output format and path
         job.setOutputFormatClass(TextOutputFormat.class);
-        TextOutputFormat.setOutputPath(job, new Path("output"));
+        TextOutputFormat.setOutputPath(job, new Path("/output/upvote-stats"));
 
         // Submit the job and wait for completion
         System.exit(job.waitForCompletion(true) ? 0 : 1);

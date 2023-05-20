@@ -13,5 +13,5 @@ dependency-reduced-pom.xml
 
 # Do not track MapReduce result files
 /jobs/*
-!/jobs/data/
+!/jobs/data/test.txt
 !/jobs/jars/WordCount.jar

@@ -26,6 +26,29 @@ wordcount:
 	./hdfs dfs -ls /test_output
 	./hdfs dfs -cat /test_output/part*
 
+move-data:
+	./hdfs dfs -rm -r -f /input
+	./hdfs dfs -mkdir -p /input
+	./hdfs dfs -put /app/data/Questions.csv /input
+	./hdfs dfs -put /app/data/Answers.csv /input
+
+upvote-stats: copy-jar
+	# Run UpvoteStatistics job
+	./hdfs dfs -rm -r -f /output/upvote-stats
+	./hadoop jar /app/jars/mapreduce-stackoverflow-1.0.jar AnswerQuestionMain
+	./hdfs dfs -get /output /app/res
+	./hdfs dfs -ls /output/upvote-stats
+	./hdfs dfs -cat /output/upvote-stats/part*
+
+text-stats: copy-jar
+	# Run TextStatistics job
+	./hdfs dfs -rm -r -f /output/text-stats
+	./hadoop jar /app/jars/mapreduce-stackoverflow-1.0.jar TextMain
+	./hdfs dfs -get /output /app/res
+	./hdfs dfs -ls /output/text-stats
+	./hdfs dfs -cat /output/text-stats/part*
+
+
 mvn: _mvn-package copy-jar
 	# Package project using mvn and copy the JAR file to jobs/jars.
 	docker run -it -v "$(shell pwd)/mapreduce":/usr/src/mymaven -w /usr/src/mymaven maven:3.3-jdk-8 mvn clean 
@@ -47,4 +70,4 @@ clean:
 	docker compose down --volumes
 
 
-.PHONY: all build run clean up wordcount mvn-package copy-jar
+.PHONY: all build run clean up wordcount mvn-package copy-jar upvote-stats text-stats
