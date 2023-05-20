@@ -14,6 +14,8 @@ all: up wordcount
 up:
 	# Start Hadoop nodes
 	docker compose up -d
+	# Create volume for Maven local repository
+	docker volume create --name maven-repo
 
 wordcount:
 	# Run wordcount example using HDFS and MapReduce
@@ -27,18 +29,14 @@ wordcount:
 	./hdfs dfs -cat /test_output/part*
 
 move-data:
-	./hdfs dfs -rm -r -f /input
-	./hdfs dfs -mkdir -p /input
-	./hdfs dfs -put /app/data/Questions.csv /input
-	./hdfs dfs -put /app/data/Answers.csv /input
+	# Move input files inside "jobs/data" to the HDFS.
+	@./hdfs dfs -mkdir -p /input
+	@./hdfs dfs -put /app/data/Questions.csv /input || exit 0
+	@./hdfs dfs -put /app/data/Answers.csv /input || exit 0
 
 upvote-stats: copy-jar
 	# Run UpvoteStatistics job
-	./hdfs dfs -rm -r -f /output/upvote-stats
-	./hadoop jar /app/jars/mapreduce-stackoverflow-1.0.jar AnswerQuestionMain
-	./hdfs dfs -get /output /app/res
-	./hdfs dfs -ls /output/upvote-stats
-	./hdfs dfs -cat /output/upvote-stats/part*
+	./hadoop jar /app/jars/mapreduce-stackoverflow-1.0.jar Driver
 
 text-stats: copy-jar
 	# Run TextStatistics job
@@ -48,26 +46,25 @@ text-stats: copy-jar
 	./hdfs dfs -ls /output/text-stats
 	./hdfs dfs -cat /output/text-stats/part*
 
-
-mvn: _mvn-package copy-jar
-	# Package project using mvn and copy the JAR file to jobs/jars.
-	docker run -it -v "$(shell pwd)/mapreduce":/usr/src/mymaven -w /usr/src/mymaven maven:3.3-jdk-8 mvn clean 
-	
+mvn: _mvn-package copy-jar _mvn-clean
 
 _mvn-package:
-	# Compile the project using mvn and package it in a JAR file.
-	docker run -it -v "$(shell pwd)/mapreduce":/usr/src/mymaven -w /usr/src/mymaven maven:3.3-jdk-8 mvn clean package
+	# Compile the project using "mvn" and package it in a JAR file.
+	@docker run -it -v "$(shell pwd)/mapreduce":/usr/src/mymaven -v maven-repo:/root/.m2 -w /usr/src/mymaven maven:3.3-jdk-8 mvn clean package
+
+_mvn-clean:
+	# Clear the "mapreduce/target" directory.
+	@docker run -it -v "$(shell pwd)/mapreduce":/usr/src/tmp alpine find /usr/src/tmp/target /usr/src/tmp/dependency-reduced-pom.xml -delete || exit 0
 	
 copy-jar:
-	# Copy the JAR file located in target to jobs/jars.
+	# Copy the JAR file located in "mapreduce/target" to "jobs/jars".
 	cp mapreduce/target/mapreduce-stackoverflow-1.0.jar jobs/jars
 
-clean:
-	# Clear the /jobs/res directory
-	docker exec namenode find /app/res -mindepth 1 -delete
+clean: _mvn-clean
+	# Clear the "jobs/res" directory.
+	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res -mindepth 1 -delete || exit 0
 	@touch jobs/res/.gitkeep
-	# Stop Hadoop cluster
+	# Stop Hadoop cluster.
 	docker compose down --volumes
 
-
-.PHONY: all build run clean up wordcount mvn-package copy-jar upvote-stats text-stats
+.PHONY: all build run clean up wordcount move-data upvote-stats text-stats mvn _mvn-package _mvn-clean copy-jar 
