@@ -23,9 +23,15 @@ up:
 move-data:
 	# Move input files inside "jobs/data" to the HDFS.
 	@./hdfs dfs -mkdir -p /input
+	@./hdfs dfs -mkdir -p /input/small
 	@./hdfs dfs -put /app/data/test.txt /input || exit 0
 	@./hdfs dfs -put /app/data/Questions.csv /input || exit 0
 	@./hdfs dfs -put /app/data/Answers.csv /input || exit 0
+	@./hdfs dfs -put /app/data/Tags.csv /input || exit 0
+
+	@./hdfs dfs -put /app/data/QuestionsSmall.csv /input/small || exit 0
+	@./hdfs dfs -put /app/data/AnswersSmall.csv /input/small || exit 0
+	@./hdfs dfs -put /app/data/TagsSmall.csv /input/small || exit 0
 
 mvn: _mvn-package copy-jar _mvn-clean
 
@@ -47,10 +53,21 @@ wordcount-src:
 	# Clear the output directory
 	./hdfs dfs -rm -r -f /output/${@}
 	# Run MapReduce job
-	./hadoop jar /app/jars/${MAIN_JAR_NAME} WordCountSrc /input/test.txt /output/${@}
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} WordCountSrc /input/small/QuestionsSmall.csv /output/${@}
 	# Output files:
 	./hdfs dfs -ls /output/${@}
-	./hdfs dfs -cat /output/${@}/part*
+	./hdfs dfs -cat /output/${@}/part* | head
+
+# Directory as input to MapReduce
+wordcount-all:
+	# Clear the output directory
+	./hdfs dfs -rm -r -f /output/${@}
+	# Run MapReduce job
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} WordCountSrc /input/small /output/${@}
+	# Output files:
+	./hdfs dfs -ls /output/${@}
+	./hdfs dfs -cat /output/${@}/part* | head
+
 
 upvote-stats:
 	# Run UpvoteStatistics job
