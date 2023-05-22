@@ -1,5 +1,7 @@
 import java.io.IOException;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -18,9 +20,11 @@ public class WordCountSrc {
 
         private final static IntWritable one = new IntWritable(1);
         private Text word = new Text();
+        Logger log = Logger.getLogger(TokenizerMapper.class.getName());
 
         public void map(Object key, Text value, Context context
         ) throws IOException, InterruptedException {
+            log.log(Level.INFO, "Read Line: " + value.toString());
             StringTokenizer itr = new StringTokenizer(value.toString());
             while (itr.hasMoreTokens()) {
                 word.set(itr.nextToken());

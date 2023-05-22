@@ -69,6 +69,15 @@ wordcount-all:
 	./hdfs dfs -cat /output/${@}/part* | head
 
 
+parse-questions:
+	# Clear the output directory
+	./hdfs dfs -rm -r -f /output/${@}
+	# Run MapReduce job
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} ParseQuestions /input/small/QuestionsSmall.csv /output/${@}
+	# Output files:
+	./hdfs dfs -ls /output/${@}
+	./hdfs dfs -cat /output/${@}/part* | head
+
 upvote-stats:
 	# Run UpvoteStatistics job
 	./hadoop jar /app/jars/${MAIN_JAR_NAME} Driver

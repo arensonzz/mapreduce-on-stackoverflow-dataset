@@ -15,6 +15,7 @@ services:
     volumes:
       - hadoop_namenode:/hadoop/dfs/name
       - ./jobs:/app
+      - ./log4j.properties:/etc/hadoop/log4j.properties
     working_dir: /app
     environment:
       - CLUSTER_NAME=test
