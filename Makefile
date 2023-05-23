@@ -52,43 +52,59 @@ clean: _mvn-clean
 wordcount-src:
 	# Clear the output directory
 	./hdfs dfs -rm -r -f /output/${@}
+	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
 	# Run MapReduce job
 	./hadoop jar /app/jars/${MAIN_JAR_NAME} WordCountSrc /input/small/QuestionsSmall.csv /output/${@}
 	# Output files:
+	./hdfs dfs -get /output/${@} /app/res
 	./hdfs dfs -ls /output/${@}
 	./hdfs dfs -cat /output/${@}/part* | head
 
-# Directory as input to MapReduce
+
+# Example of giving directory as input to MapReduce
 wordcount-all:
 	# Clear the output directory
 	./hdfs dfs -rm -r -f /output/${@}
+	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
 	# Run MapReduce job
 	./hadoop jar /app/jars/${MAIN_JAR_NAME} WordCountSrc /input/small /output/${@}
 	# Output files:
+	./hdfs dfs -get /output/${@} /app/res
 	./hdfs dfs -ls /output/${@}
 	./hdfs dfs -cat /output/${@}/part* | head
-
 
 parse-questions:
 	# Clear the output directory
 	./hdfs dfs -rm -r -f /output/${@}
+	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
 	# Run MapReduce job
 	./hadoop jar /app/jars/${MAIN_JAR_NAME} ParseQuestions /input/small/QuestionsSmall.csv /output/${@}
 	# Output files:
+	./hdfs dfs -get /output/${@} /app/res
 	./hdfs dfs -ls /output/${@}
 	./hdfs dfs -cat /output/${@}/part* | head
 
-upvote-stats:
-	# Run UpvoteStatistics job
-	./hadoop jar /app/jars/${MAIN_JAR_NAME} Driver
+parse-answers:
+	# Clear the output directory
+	./hdfs dfs -rm -r -f /output/${@}
+	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
+	# Run MapReduce job
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} ParseAnswers /input/small/AnswersSmall.csv /output/${@}
+	# Output files:
+	./hdfs dfs -get /output/${@} /app/res
+	./hdfs dfs -ls /output/${@}
+	./hdfs dfs -cat /output/${@}/part* | head
 
-text-stats:
-	# Run TextStatistics job
-	./hdfs dfs -rm -r -f /output/text-stats
-	./hadoop jar /app/jars/${MAIN_JAR_NAME} TextMain
-	./hdfs dfs -get /output /app/res
-	./hdfs dfs -ls /output/text-stats
-	./hdfs dfs -cat /output/text-stats/part*
+users-question-score-sum:
+	# Clear the output directory
+	./hdfs dfs -rm -r -f /output/${@}
+	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
+	# Run MapReduce job
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} UsersQuestionScoreSum /output/parse-questions /output/${@}
+	# Output files:
+	./hdfs dfs -get /output/${@} /app/res
+	./hdfs dfs -ls /output/${@}
+	./hdfs dfs -cat /output/${@}/part* | head
 
 wordcount:
 	# Run wordcount example using HDFS and MapReduce

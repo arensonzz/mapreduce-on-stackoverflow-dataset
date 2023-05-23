@@ -10,15 +10,18 @@
 
     <build>
         <plugins>
+            <!-- https://maven.apache.org/plugins/maven-compiler-plugin/summary.html -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
                 <configuration>
                     <source>8</source>
                     <target>8</target>
                 </configuration>
             </plugin>
             <!-- Maven plugin for creating executable JAR file -->
+            <!-- https://maven.apache.org/plugins/maven-jar-plugin/summary.html -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -37,6 +40,7 @@
                 </configuration>
             </plugin>
             <!-- Maven plugin for bundling dependencies in the JAR output file. -->
+            <!-- https://maven.apache.org/plugins/maven-shade-plugin/summary.html -->
             <!-- This plugin fixes "NoClassDefFoundError" when running the JAR file. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -88,6 +92,13 @@
             <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
             <version>3.3.1</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>5.7.1</version>
         </dependency>
     </dependencies>
     

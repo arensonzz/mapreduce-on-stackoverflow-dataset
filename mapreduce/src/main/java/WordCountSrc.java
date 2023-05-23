@@ -36,6 +36,7 @@ public class WordCountSrc {
     public static class IntSumReducer
             extends Reducer<Text, IntWritable, Text, IntWritable> {
         private IntWritable result = new IntWritable();
+        Logger log = Logger.getLogger(WordCountSrc.class.getName());
 
         public void reduce(Text key, Iterable<IntWritable> values,
                            Context context
@@ -45,6 +46,7 @@ public class WordCountSrc {
                 sum += val.get();
             }
             result.set(sum);
+            log.info("REDUCER");
             context.write(key, result);
         }
     }
