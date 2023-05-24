@@ -15,6 +15,22 @@ import java.util.logging.Logger;
 public class UsersQuestionScoreSum {
     private static final Logger log = Logger.getLogger(UsersQuestionScoreSum.class.getName());
 
+    public static void main(String[] args) throws Exception {
+        Configuration conf = new Configuration();
+        Job job = Job.getInstance(conf, "users question score sum");
+        job.setJarByClass(UsersQuestionScoreSum.class);
+        job.setMapperClass(UserScoreMapper.class);
+        job.setInputFormatClass(QuestionsTupleInputFormat.class);
+        job.setReducerClass(ScoreSumReducer.class);
+        // Set mapper key-value class types
+        job.setOutputKeyClass(LongWritable.class);
+        job.setOutputValueClass(LongWritable.class);
+        FileInputFormat.addInputPath(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
+        System.exit(job.waitForCompletion(true) ? 0 : 1);
+    }
+
     public static class UserScoreMapper extends Mapper<LongWritable, QuestionsTuple, LongWritable, LongWritable> {
 
         public void map(LongWritable key, QuestionsTuple tuple, Context context) throws IOException, InterruptedException {
@@ -44,21 +60,5 @@ public class UsersQuestionScoreSum {
             result.set(sum);
             context.write(key, result);
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "users question score sum");
-        job.setJarByClass(UsersQuestionScoreSum.class);
-        job.setMapperClass(UserScoreMapper.class);
-        job.setInputFormatClass(QuestionsTupleInputFormat.class);
-        job.setReducerClass(ScoreSumReducer.class);
-        // Set mapper key-value class types
-        job.setOutputKeyClass(LongWritable.class);
-        job.setOutputValueClass(LongWritable.class);
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
-
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 }

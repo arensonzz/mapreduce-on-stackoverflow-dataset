@@ -45,6 +45,12 @@ public class QuestionsTuple implements Writable {
         closedDate = Optional.empty();
     }
 
+    public static QuestionsTuple read(DataInput in) throws IOException {
+        QuestionsTuple tuple = new QuestionsTuple();
+        tuple.readFields(in);
+        return tuple;
+    }
+
     @Override
     public void write(DataOutput dataOutput) throws IOException {
         dataOutput.writeLong(id);
@@ -97,12 +103,6 @@ public class QuestionsTuple implements Writable {
         score = dataInput.readInt();
         title = dataInput.readLine();
         body = dataInput.readLine();
-    }
-
-    public static QuestionsTuple read(DataInput in) throws IOException {
-        QuestionsTuple tuple = new QuestionsTuple();
-        tuple.readFields(in);
-        return tuple;
     }
 
     public long getId() {

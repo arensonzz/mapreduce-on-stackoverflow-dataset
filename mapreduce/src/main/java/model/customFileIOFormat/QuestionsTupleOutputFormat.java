@@ -20,6 +20,14 @@ import java.io.IOException;
 
 public class QuestionsTupleOutputFormat extends FileOutputFormat<LongWritable, QuestionsTuple> {
 
+    @Override
+    public RecordWriter<LongWritable, QuestionsTuple> getRecordWriter(TaskAttemptContext job) throws IOException, InterruptedException {
+        Path file = getDefaultWorkFile(job, "");
+        FileSystem fs = file.getFileSystem(job.getConfiguration());
+        FSDataOutputStream fileOut = fs.create(file, false);
+        return new QuestionsTupleRecordWriter(fileOut);
+    }
+
     protected static class QuestionsTupleRecordWriter extends RecordWriter<LongWritable, QuestionsTuple> {
         private DataOutputStream out;
 
@@ -34,13 +42,5 @@ public class QuestionsTupleOutputFormat extends FileOutputFormat<LongWritable, Q
         public synchronized void close(TaskAttemptContext job) throws IOException {
             out.close();
         }
-    }
-
-    @Override
-    public RecordWriter<LongWritable, QuestionsTuple> getRecordWriter(TaskAttemptContext job) throws IOException, InterruptedException {
-        Path file = getDefaultWorkFile(job, "");
-        FileSystem fs = file.getFileSystem(job.getConfiguration());
-        FSDataOutputStream fileOut = fs.create(file, false);
-        return new QuestionsTupleRecordWriter(fileOut);
     }
 }

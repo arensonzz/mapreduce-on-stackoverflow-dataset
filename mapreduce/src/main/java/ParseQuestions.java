@@ -21,6 +21,28 @@ import java.util.logging.Logger;
 public class ParseQuestions {
     private static final Logger log = Logger.getLogger(ParseQuestions.class.getName());
 
+    public static void main(String[] args) throws Exception {
+        Configuration conf = new Configuration();
+        conf.set(CSVLineRecordReader.FORMAT_DELIMITER, "\"");
+        conf.set(CSVLineRecordReader.FORMAT_SEPARATOR, ",");
+        conf.set(CSVLineRecordReader.IS_ZIPFILE, "false");
+        Job job = Job.getInstance(conf, "parse questions");
+        job.setInputFormatClass(CSVNLineInputFormat.class);
+        job.setJarByClass(ParseQuestions.class);
+        // If you do not set Reducer, then Mapper output is the final output
+        job.setMapperClass(ParseMapper.class);
+
+        // Set mapper key-value class types
+        job.setOutputKeyClass(LongWritable.class);
+        job.setOutputValueClass(QuestionsTuple.class);
+        // Set output format from TextOutputFormat to the custom defined serialization format
+        job.setOutputFormatClass(QuestionsTupleOutputFormat.class);
+        FileInputFormat.addInputPath(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
+        System.exit(job.waitForCompletion(true) ? 0 : 1);
+    }
+
     public static class ParseMapper extends Mapper<LongWritable, List<Text>, LongWritable, QuestionsTuple> {
 
         public void map(LongWritable key, List<Text> values, Context context) throws IOException, InterruptedException {
@@ -55,27 +77,5 @@ public class ParseQuestions {
 
             context.write(id, tuple);
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        Configuration conf = new Configuration();
-        conf.set(CSVLineRecordReader.FORMAT_DELIMITER, "\"");
-        conf.set(CSVLineRecordReader.FORMAT_SEPARATOR, ",");
-        conf.set(CSVLineRecordReader.IS_ZIPFILE, "false");
-        Job job = Job.getInstance(conf, "parse questions");
-        job.setInputFormatClass(CSVNLineInputFormat.class);
-        job.setJarByClass(ParseQuestions.class);
-        // If you do not set Reducer, then Mapper output is the final output
-        job.setMapperClass(ParseMapper.class);
-
-        // Set mapper key-value class types
-        job.setOutputKeyClass(LongWritable.class);
-        job.setOutputValueClass(QuestionsTuple.class);
-        // Set output format from TextOutputFormat to the custom defined serialization format
-        job.setOutputFormatClass(QuestionsTupleOutputFormat.class);
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
-
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 }

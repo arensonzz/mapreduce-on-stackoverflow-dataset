@@ -23,6 +23,11 @@ import java.util.logging.Logger;
 public class QuestionsTupleInputFormat extends FileInputFormat<LongWritable, QuestionsTuple> {
     private static final Logger log = Logger.getLogger(QuestionsTupleInputFormat.class.getName());
 
+    @Override
+    public RecordReader<LongWritable, QuestionsTuple> createRecordReader(InputSplit inputSplit, TaskAttemptContext job) throws IOException, InterruptedException {
+        return new QuestionsTupleRecordReader();
+    }
+
     protected static class QuestionsTupleRecordReader extends RecordReader<LongWritable, QuestionsTuple> {
         private FSDataInputStream filein;
         private LongWritable key;
@@ -63,7 +68,7 @@ public class QuestionsTupleInputFormat extends FileInputFormat<LongWritable, Que
             final Path file = split.getPath();
             Configuration conf = context.getConfiguration();
             FileSystem fs = file.getFileSystem(conf);
-            
+
             start = split.getStart();
             end = start + split.getLength();
             filein = fs.open(split.getPath());
@@ -90,10 +95,5 @@ public class QuestionsTupleInputFormat extends FileInputFormat<LongWritable, Que
             key.set(value.getId());
             return true;
         }
-    }
-
-    @Override
-    public RecordReader<LongWritable, QuestionsTuple> createRecordReader(InputSplit inputSplit, TaskAttemptContext job) throws IOException, InterruptedException {
-        return new QuestionsTupleRecordReader();
     }
 }
