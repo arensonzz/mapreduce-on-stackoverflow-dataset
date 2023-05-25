@@ -17,9 +17,8 @@ dependency-reduced-pom.xml
 !/jobs/data
 /jobs/data/*
 !/jobs/data/test.csv
-!/jobs/data/QuestionsSmall.csv
-!/jobs/data/AnswersSmall.csv
-!/jobs/data/TagsSmall.csv
+!/jobs/data/QuestionsSmallPre.csv
+!/jobs/data/AnswersSmallPre.csv
 
 !/jobs/jars
 /jobs/jars/*
