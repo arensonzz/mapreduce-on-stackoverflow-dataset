@@ -1,5 +1,7 @@
 package model;
 
+import com.opencsv.CSVParser;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
 import java.io.DataInput;
@@ -44,6 +46,29 @@ public class QuestionsTuple implements Writable {
     public static QuestionsTuple read(DataInput in) throws IOException {
         QuestionsTuple tuple = new QuestionsTuple();
         tuple.readFields(in);
+        return tuple;
+    }
+
+    public static QuestionsTuple parseCsvLine(long key, Text line) throws IOException {
+        // Skip if the input is csv header
+        if (key == 0 && line.toString().contains("CreationDate")) {
+            return null;
+        }
+        CSVParser parser = new CSVParser();
+        QuestionsTuple tuple = new QuestionsTuple();
+        String[] fields = parser.parseLine(line.toString());
+
+        tuple.setId(Long.parseLong(fields[0]));
+        tuple.setOwnerUserId(Long.parseLong(fields[1]));
+        try {
+            tuple.setCreationDate(Optional.of(ZonedDateTime.parse(fields[2])));
+        } catch (DateTimeParseException e) {
+            tuple.setCreationDate(Optional.empty());
+        }
+        tuple.setScore(Integer.parseInt(fields[3]));
+        tuple.setTitle(fields[4]);
+        tuple.setBody(fields[5]);
+        tuple.setTags(fields[6]);
         return tuple;
     }
 

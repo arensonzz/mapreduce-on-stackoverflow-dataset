@@ -1,6 +1,4 @@
-import com.opencsv.CSVParser;
 import model.QuestionsTuple;
-import model.customFileIOFormat.QuestionsTupleOutputFormat;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -13,9 +11,6 @@ import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.Optional;
 import java.util.logging.Logger;
 
 public class ParseQuestions {
@@ -39,9 +34,10 @@ public class ParseQuestions {
         // Reducer Config
         // Note: If you do not set Reducer, then Mapper output is the final output
         job.setReducerClass(ParseReducer.class);
+        // Optional: Set number of reduce tasks
         //job.setNumReduceTasks(5);
-        // Set output format from TextOutputFormat to the custom defined serialization format
-        job.setOutputFormatClass(QuestionsTupleOutputFormat.class);
+        // Optional: Set output format from TextOutputFormat to the custom defined serialization format
+        //job.setOutputFormatClass(QuestionsTupleOutputFormat.class);
 
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
@@ -50,36 +46,13 @@ public class ParseQuestions {
     }
 
     public static class ParseMapper extends Mapper<LongWritable, Text, LongWritable, QuestionsTuple> {
-        private final CSVParser parser = new CSVParser();
-
-        private QuestionsTuple parseCsvLine(long key, Text line) throws IOException {
-            // Skip if the input is csv header
-            if (key == 0 && line.toString().contains("CreationDate")) {
-                return null;
-            }
-            QuestionsTuple tuple = new QuestionsTuple();
-            String[] fields = parser.parseLine(line.toString());
-
-            tuple.setId(Long.parseLong(fields[0]));
-            tuple.setOwnerUserId(Long.parseLong(fields[1]));
-            try {
-                tuple.setCreationDate(Optional.of(ZonedDateTime.parse(fields[2])));
-            } catch (DateTimeParseException e) {
-                tuple.setCreationDate(Optional.empty());
-            }
-            tuple.setScore(Integer.parseInt(fields[3]));
-            tuple.setTitle(fields[4]);
-            tuple.setBody(fields[5]);
-            tuple.setTags(fields[6]);
-            return tuple;
-        }
 
         public void map(LongWritable key, Text values, Context context) throws IOException, InterruptedException {
             LongWritable id = new LongWritable();
             QuestionsTuple tuple;
 
             // Parse line into object fields
-            if ((tuple = parseCsvLine(key.get(), values)) == null) {
+            if ((tuple = QuestionsTuple.parseCsvLine(key.get(), values)) == null) {
                 return;
             }
             id.set(tuple.getId());
@@ -91,10 +64,14 @@ public class ParseQuestions {
     public static class ParseReducer
             extends Reducer<LongWritable, QuestionsTuple, LongWritable, QuestionsTuple> {
 
-        public void reduce(LongWritable key, QuestionsTuple tuple,
+        // Reducer value must be defined as Iterable<>
+        public void reduce(LongWritable key, Iterable<QuestionsTuple> tuples,
                            Context context
         ) throws IOException, InterruptedException {
-            context.write(key, tuple);
+            for (QuestionsTuple tuple :
+                    tuples) {
+                context.write(key, tuple);
+            }
         }
     }
 }

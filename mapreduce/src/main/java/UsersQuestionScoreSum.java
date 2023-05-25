@@ -1,43 +1,59 @@
 import model.QuestionsTuple;
-import model.customFileIOFormat.QuestionsTupleInputFormat;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
 import java.util.logging.Logger;
 
 public class UsersQuestionScoreSum {
-    private static final Logger log = Logger.getLogger(UsersQuestionScoreSum.class.getName());
+    private static final Logger log = Logger.getLogger(ParseQuestions.class.getName());
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
+
+        // Job Config
+        // Reduce number of splits to reduce Map node overhead
+        conf.setInt("mapreduce.input.lineinputformat.linespermap", 80000);
         Job job = Job.getInstance(conf, "users question score sum");
-        job.setJarByClass(UsersQuestionScoreSum.class);
-        job.setMapperClass(UserScoreMapper.class);
-        job.setInputFormatClass(QuestionsTupleInputFormat.class);
-        job.setReducerClass(ScoreSumReducer.class);
-        // Set mapper key-value class types
+        job.setJarByClass(ParseQuestions.class);
+
+        // Mapper Config
+        job.setInputFormatClass(NLineInputFormat.class);
+        job.setMapperClass(UsersScoreMapper.class);
         job.setOutputKeyClass(LongWritable.class);
         job.setOutputValueClass(LongWritable.class);
+
+        // Reducer Config
+        // Note: If you do not set Reducer, then Mapper output is the final output
+        job.setReducerClass(ScoreSumReducer.class);
+        //job.setNumReduceTasks(5);
+
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 
-    public static class UserScoreMapper extends Mapper<LongWritable, QuestionsTuple, LongWritable, LongWritable> {
+    public static class UsersScoreMapper extends Mapper<LongWritable, Text, LongWritable, LongWritable> {
 
-        public void map(LongWritable key, QuestionsTuple tuple, Context context) throws IOException, InterruptedException {
+        public void map(LongWritable key, Text values, Context context) throws IOException, InterruptedException {
+            QuestionsTuple tuple;
             LongWritable ownerUserId = new LongWritable();
             LongWritable score = new LongWritable();
 
-            log.info("Mapper: " + tuple);
+            // Parse line into object fields
+            if ((tuple = QuestionsTuple.parseCsvLine(key.get(), values)) == null) {
+                return;
+            }
+
             ownerUserId.set(tuple.getOwnerUserId());
             score.set(tuple.getScore());
 
@@ -46,7 +62,7 @@ public class UsersQuestionScoreSum {
     }
 
     public static class ScoreSumReducer
-            extends Reducer<LongWritable, Iterable<LongWritable>, LongWritable, LongWritable> {
+            extends Reducer<LongWritable, LongWritable, LongWritable, LongWritable> {
 
         public void reduce(LongWritable key, Iterable<LongWritable> scores,
                            Context context
