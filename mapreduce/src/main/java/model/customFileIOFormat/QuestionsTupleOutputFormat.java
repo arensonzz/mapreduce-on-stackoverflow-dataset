@@ -1,6 +1,6 @@
 /**
  * Custom FileOutputFormat for serializing QuestionsTuple instances.
- * <p>
+ * 
  * Some parts taken from: https://stackoverflow.com/q/40891164
  * Also check: https://www.infoq.com/articles/HadoopOutputFormat/
  */

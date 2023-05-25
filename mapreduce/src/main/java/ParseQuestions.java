@@ -1,4 +1,11 @@
+/**
+ * This MapReduce job reads Questions.csv file and constructs QuestionsTuple objects by parsing lines.
+ * Then the resulting objects are passed to the reducer to be serialized using QuestionsTupleOutputFormat.
+ * Another Mapper can de-serialize objects from this file using the QuestionsTupleInputFormat.
+ */
+
 import model.QuestionsTuple;
+import model.customFileIOFormat.QuestionsTupleOutputFormat;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -37,7 +44,7 @@ public class ParseQuestions {
         // Optional: Set number of reduce tasks
         //job.setNumReduceTasks(5);
         // Optional: Set output format from TextOutputFormat to the custom defined serialization format
-        //job.setOutputFormatClass(QuestionsTupleOutputFormat.class);
+        job.setOutputFormatClass(QuestionsTupleOutputFormat.class);
 
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
