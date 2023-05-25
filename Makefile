@@ -28,8 +28,8 @@ move-data: ${DATA_FILES}
 	@./hdfs dfs -put /app/data/test.txt /input || exit 0
 	@./hdfs dfs -put /app/data/QuestionsPre.csv /input || exit 0
 	@./hdfs dfs -put /app/data/AnswersPre.csv /input || exit 0
-	@./hdfs dfs -put /app/data/QuestionsSmallPre.csv /input/small || exit 0
-	@./hdfs dfs -put /app/data/AnswersSmallPre.csv /input/small || exit 0
+	@./hdfs dfs -put /app/data/QuestionsSmallPre.csv /input || exit 0
+	@./hdfs dfs -put /app/data/AnswersSmallPre.csv /input || exit 0
 
 mvn: _mvn-package copy-jar _mvn-clean
 

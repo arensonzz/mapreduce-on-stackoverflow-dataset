@@ -14,18 +14,24 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
 public class ParseQuestions {
     private static final Logger log = Logger.getLogger(ParseQuestions.class.getName());
+    private static int linesPerMap;
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
         conf.set(CSVLineRecordReader.FORMAT_DELIMITER, "\"");
         conf.set(CSVLineRecordReader.FORMAT_SEPARATOR, ",");
         conf.set(CSVLineRecordReader.IS_ZIPFILE, "false");
+
+        // Reduce number of map jobs
+        linesPerMap = 200;
+        conf.setInt("mapreduce.input.lineinputformat.linespermap", linesPerMap);
         Job job = Job.getInstance(conf, "parse questions");
         job.setInputFormatClass(CSVNLineInputFormat.class);
         job.setJarByClass(ParseQuestions.class);
@@ -48,9 +54,16 @@ public class ParseQuestions {
         public void map(LongWritable key, List<Text> values, Context context) throws IOException, InterruptedException {
             LongWritable id = new LongWritable();
             QuestionsTuple tuple = new QuestionsTuple();
-
+            //ArrayList<String> valuesStr = new ArrayList<String>();
+            //
+            //log.info("key: " + key.get());
+            //log.info("values.size(): " + values.size());
+            //values.forEach((value) -> valuesStr.add(value.toString()));
+            //log.info("values: " + String.join("\t|||\t", valuesStr));
+            //log.info("getInputSplit: " + context.getInputSplit().toString());
+            
             // Skip if the input is csv header
-            if (key.get() == 0 && values.toString().contains("ClosedDate")) {
+            if (key.get() == 0 && values.toString().contains("CreationDate")) {
                 return;
             }
             String[] fields = new String[values.size()];
@@ -65,14 +78,11 @@ public class ParseQuestions {
             } catch (DateTimeParseException e) {
                 tuple.setCreationDate(Optional.empty());
             }
-            try {
-                tuple.setClosedDate(Optional.of(ZonedDateTime.parse(fields[3])));
-            } catch (DateTimeParseException e) {
-                tuple.setClosedDate(Optional.empty());
-            }
-            tuple.setScore(Integer.parseInt(fields[4]));
-            tuple.setTitle(fields[5]);
-            tuple.setBody(fields[6]);
+            tuple.setScore(Integer.parseInt(fields[3]));
+            tuple.setTitle(fields[4]);
+            tuple.setBody(fields[5]);
+            tuple.setTags(fields[6]);
+            
             id.set(tuple.getId());
 
             context.write(id, tuple);

@@ -7,18 +7,20 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 
 public class QuestionsTuple implements Writable {
     private long id;
     private long ownerUserId;
     private Optional<ZonedDateTime> creationDate;
-    private Optional<ZonedDateTime> closedDate;
     private int score;
     private String title;
     private String body;
+    private final ArrayList<String> tags = new ArrayList<>();
 
-    public QuestionsTuple(long id, long ownerUserId, String creationDate, String closedDate, int score, String title, String body) {
+    public QuestionsTuple(long id, long ownerUserId, String creationDate, String closedDate, int score, String title, String body, String tags) {
         this.id = id;
         this.ownerUserId = ownerUserId;
 
@@ -28,21 +30,15 @@ public class QuestionsTuple implements Writable {
             e.printStackTrace();
             this.creationDate = Optional.empty();
         }
-        try {
-            this.closedDate = Optional.of(ZonedDateTime.parse(closedDate));
-        } catch (DateTimeParseException e) {
-            e.printStackTrace();
-            this.closedDate = Optional.empty();
-        }
 
         this.score = score;
         this.title = title;
         this.body = body;
+        this.setTags(tags);
     }
 
     public QuestionsTuple() {
         creationDate = Optional.empty();
-        closedDate = Optional.empty();
     }
 
     public static QuestionsTuple read(DataInput in) throws IOException {
@@ -61,14 +57,10 @@ public class QuestionsTuple implements Writable {
         } else {
             dataOutput.writeBytes("NULL\n");
         }
-        if (closedDate.isPresent()) {
-            dataOutput.writeBytes(closedDate.get() + "\n");
-        } else {
-            dataOutput.writeBytes("NULL\n");
-        }
         dataOutput.writeInt(score);
-        dataOutput.writeBytes(title.replaceAll("(\r\n|\r|\n)", " ") + "\n");
-        dataOutput.writeBytes(body.replaceAll("(\r\n|\r|\n)", " ") + "\n");
+        dataOutput.writeBytes(title + "\n");
+        dataOutput.writeBytes(body + "\n");
+        dataOutput.writeBytes(String.join(" ", tags) + "\n");
     }
 
     @Override
@@ -77,10 +69,10 @@ public class QuestionsTuple implements Writable {
                 "id=" + id +
                 ", ownerUserId=" + ownerUserId +
                 ", creationDate=" + creationDate.orElse(null) +
-                ", closedDate=" + closedDate.orElse(null) +
                 ", score=" + score +
                 ", title='" + title + '\'' +
                 ", body='" + body + '\'' +
+                ", tags='" + tags + '\'' +
                 '}';
     }
 
@@ -94,15 +86,10 @@ public class QuestionsTuple implements Writable {
             e.printStackTrace();
             this.creationDate = Optional.empty();
         }
-        try {
-            closedDate = Optional.of(ZonedDateTime.parse(dataInput.readLine().replace("\n", "")));
-        } catch (DateTimeParseException e) {
-            e.printStackTrace();
-            this.closedDate = Optional.empty();
-        }
         score = dataInput.readInt();
         title = dataInput.readLine();
         body = dataInput.readLine();
+        tags.addAll(Arrays.asList(dataInput.readLine().trim().split("\\s+")));
     }
 
     public long getId() {
@@ -129,14 +116,6 @@ public class QuestionsTuple implements Writable {
         this.creationDate = creationDate;
     }
 
-    public Optional<ZonedDateTime> getClosedDate() {
-        return closedDate;
-    }
-
-    public void setClosedDate(Optional<ZonedDateTime> closedDate) {
-        this.closedDate = closedDate;
-    }
-
     public int getScore() {
         return score;
     }
@@ -159,5 +138,13 @@ public class QuestionsTuple implements Writable {
 
     public void setBody(String body) {
         this.body = body;
+    }
+    
+    public ArrayList<String> getTags() {
+        return tags;
+    }
+    
+    public void setTags(String tags) {
+        this.tags.addAll(Arrays.asList(tags.trim().split("\\s+")));
     }
 }
