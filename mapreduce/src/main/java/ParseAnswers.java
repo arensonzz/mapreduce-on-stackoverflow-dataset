@@ -1,11 +1,9 @@
 /**
- * This MapReduce job reads Questions.csv file and constructs QuestionsTuple objects by parsing lines.
- * Then the resulting objects are passed to the reducer to be serialized using QuestionsTupleOutputFormat.
- * Another Mapper can de-serialize objects from this file using the QuestionsTupleInputFormat.
+ * This MapReduce job reads Answers.csv file and constructs AnswersTuple objects by parsing lines.
+ * Then the resulting objects are passed to the reducer to be serialized using default FileOutputFormat.
  */
 
-import model.QuestionsTuple;
-import model.customFileIOFormat.QuestionsTupleOutputFormat;
+import model.AnswersTuple;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -20,31 +18,29 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-public class ParseQuestions {
-    private static final Logger log = Logger.getLogger(ParseQuestions.class.getName());
+public class ParseAnswers {
+    private static final Logger log = Logger.getLogger(ParseAnswers.class.getName());
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
 
         // Job Config
         // Reduce number of splits to reduce Map node overhead
-        conf.setInt("mapreduce.input.lineinputformat.linespermap", 80000);
-        Job job = Job.getInstance(conf, "parse questions");
-        job.setJarByClass(ParseQuestions.class);
+        conf.setInt("mapreduce.input.lineinputformat.linespermap", 250000);
+        Job job = Job.getInstance(conf, "parse answers");
+        job.setJarByClass(ParseAnswers.class);
 
         // Mapper Config
         job.setInputFormatClass(NLineInputFormat.class);
         job.setMapperClass(ParseMapper.class);
         job.setOutputKeyClass(LongWritable.class);
-        job.setOutputValueClass(QuestionsTuple.class);
+        job.setOutputValueClass(AnswersTuple.class);
 
         // Reducer Config
         // Note: If you do not set Reducer, then Mapper output is the final output
         job.setReducerClass(ParseReducer.class);
         // Optional: Set number of reduce tasks
         //job.setNumReduceTasks(5);
-        // Optional: Set output format from TextOutputFormat to the custom defined serialization format
-        //job.setOutputFormatClass(QuestionsTupleOutputFormat.class);
 
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
@@ -52,14 +48,14 @@ public class ParseQuestions {
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 
-    public static class ParseMapper extends Mapper<LongWritable, Text, LongWritable, QuestionsTuple> {
+    public static class ParseMapper extends Mapper<LongWritable, Text, LongWritable, AnswersTuple> {
 
         public void map(LongWritable key, Text values, Context context) throws IOException, InterruptedException {
             LongWritable id = new LongWritable();
-            QuestionsTuple tuple;
+            AnswersTuple tuple;
 
             // Parse line into object fields
-            if ((tuple = QuestionsTuple.parseCsvLine(key.get(), values)) == null) {
+            if ((tuple = AnswersTuple.parseCsvLine(key.get(), values)) == null) {
                 return;
             }
             id.set(tuple.getId());
@@ -69,13 +65,13 @@ public class ParseQuestions {
     }
 
     public static class ParseReducer
-            extends Reducer<LongWritable, QuestionsTuple, LongWritable, QuestionsTuple> {
+            extends Reducer<LongWritable, AnswersTuple, LongWritable, AnswersTuple> {
 
         // Reducer value must be defined as Iterable<>
-        public void reduce(LongWritable key, Iterable<QuestionsTuple> tuples,
+        public void reduce(LongWritable key, Iterable<AnswersTuple> tuples,
                            Context context
         ) throws IOException, InterruptedException {
-            for (QuestionsTuple tuple :
+            for (AnswersTuple tuple :
                     tuples) {
                 context.write(key, tuple);
             }
