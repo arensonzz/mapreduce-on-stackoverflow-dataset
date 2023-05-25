@@ -18,7 +18,7 @@ public class QuestionsTuple implements Writable {
     private int score;
     private String title;
     private String body;
-    private final ArrayList<String> tags = new ArrayList<>();
+    private ArrayList<String> tags;
 
     public QuestionsTuple(long id, long ownerUserId, String creationDate, String closedDate, int score, String title, String body, String tags) {
         this.id = id;
@@ -89,7 +89,7 @@ public class QuestionsTuple implements Writable {
         score = dataInput.readInt();
         title = dataInput.readLine();
         body = dataInput.readLine();
-        tags.addAll(Arrays.asList(dataInput.readLine().trim().split("\\s+")));
+        setTags(dataInput.readLine());
     }
 
     public long getId() {
@@ -139,12 +139,13 @@ public class QuestionsTuple implements Writable {
     public void setBody(String body) {
         this.body = body;
     }
-    
+
     public ArrayList<String> getTags() {
         return tags;
     }
-    
+
     public void setTags(String tags) {
+        this.tags = new ArrayList<>();
         this.tags.addAll(Arrays.asList(tags.trim().split("\\s+")));
     }
 }

@@ -72,7 +72,6 @@ public class QuestionsTupleInputFormat extends FileInputFormat<LongWritable, Que
             start = split.getStart();
             end = start + split.getLength();
             filein = fs.open(split.getPath());
-            filein.seek(start);
             this.pos = start;
         }
 
