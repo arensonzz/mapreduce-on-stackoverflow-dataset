@@ -22,7 +22,7 @@ public class QuestionsTuple implements Writable {
     private String body;
     private ArrayList<String> tags;
 
-    public QuestionsTuple(long id, long ownerUserId, String creationDate, String closedDate, int score, String title, String body, String tags) {
+    public QuestionsTuple(long id, long ownerUserId, String creationDate, int score, String title, String body, String tags) {
         this.id = id;
         this.ownerUserId = ownerUserId;
 
@@ -50,10 +50,7 @@ public class QuestionsTuple implements Writable {
     }
 
     public static QuestionsTuple parseCsvLine(long key, Text line) throws IOException {
-        // Skip if the input is csv header
-        if (key == 0 && line.toString().contains("CreationDate")) {
-            return null;
-        }
+        
         CSVParser parser = new CSVParser();
         QuestionsTuple tuple = new QuestionsTuple();
         String[] fields = parser.parseLine(line.toString());

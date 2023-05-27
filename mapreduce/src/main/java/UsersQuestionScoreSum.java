@@ -11,10 +11,10 @@ import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
-import java.util.logging.Logger;
+//import java.util.logging.Logger;
 
 public class UsersQuestionScoreSum {
-    private static final Logger log = Logger.getLogger(ParseQuestions.class.getName());
+    //private static final Logger log = Logger.getLogger(ParseQuestions.class.getName());
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
@@ -48,17 +48,16 @@ public class UsersQuestionScoreSum {
             QuestionsTuple tuple;
             LongWritable ownerUserId = new LongWritable();
             LongWritable score = new LongWritable();
-
+        
+            tuple = QuestionsTuple.parseCsvLine(key.get(), values);
             // Parse line into object fields
-            if ((tuple = QuestionsTuple.parseCsvLine(key.get(), values)) == null) {
-                return;
-            }
-
+            
             ownerUserId.set(tuple.getOwnerUserId());
             score.set(tuple.getScore());
-
+        
             context.write(ownerUserId, score);
         }
+        
     }
 
     public static class ScoreSumReducer
