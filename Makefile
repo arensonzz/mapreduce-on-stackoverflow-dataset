@@ -169,6 +169,17 @@ wc-questions-title:
 	./hdfs dfs -ls /output/${@}
 	./hdfs dfs -cat /output/${@}/part* | head
 
+yearly-trend-topics:
+	# Clear the output directory
+	./hdfs dfs -rm -r -f /output/${@}
+	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
+	# Run MapReduce job
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} YearlyTrendTopics /input/QuestionsPre.csv /output/${@}
+	# Output files:
+	./hdfs dfs -get /output/${@} /app/res
+	./hdfs dfs -ls /output/${@}
+	./hdfs dfs -cat /output/${@}/part* | head
+
 wordcount:
 	# Run wordcount example using HDFS and MapReduce
 	./hdfs dfs -rm -r -f /test_input
