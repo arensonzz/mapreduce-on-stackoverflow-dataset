@@ -96,16 +96,18 @@ class Preprocessing:
 
 if __name__ == "__main__":
     # Read input csv files
-    answers = pd.read_csv("jobs/data/AnswersSmall.csv", engine='c', encoding="ISO-8859-1",
+    answers = pd.read_csv("jobs/data/Answers.csv", engine='c', encoding="ISO-8859-1",
                           dtype={'Id': 'Int64', 'OwnerUserId': 'Int64',
-                                 'CreationDate': str, 'ClosedDate':
-                                 str, 'Score': 'Int64', 'Title': str,
-                                 'Body': str})
-    questions = pd.read_csv("jobs/data/QuestionsSmall.csv", engine='c', encoding="ISO-8859-1",
+                                 'CreationDate': str,
+                                 'ParentId': 'Int64', 'Score': 'Int64',
+                                 'Body': str}
+                          )
+    questions = pd.read_csv("jobs/data/Questions.csv", engine='c', encoding="ISO-8859-1",
                             dtype={'Id': 'Int64', 'OwnerUserId': 'Int64',
-                                   'CreationDate': str,
-                                   'ParentId': 'Int64', 'Score': 'Int64',
-                                   'Body': str})
+                                   'CreationDate': str, 'ClosedDate':
+                                   str, 'Score': 'Int64', 'Title': str,
+                                   'Body': str}
+                            )
     tags = pd.read_csv("jobs/data/Tags.csv", engine='c', encoding="ISO-8859-1",
                        dtype={'Id': 'Int64', 'Tag': str})
 

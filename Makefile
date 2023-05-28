@@ -16,6 +16,8 @@ all: up wordcount
 #
 # General Targets
 #
+ready: clean up move-data mvn
+
 up:
 	# Start Hadoop nodes
 	docker compose up -d
