@@ -31,6 +31,7 @@ move-data: ${DATA_FILES}
 	@./hdfs dfs -put /app/data/QuestionsSmallPre.csv /input || exit 0
 	@./hdfs dfs -put /app/data/AnswersSmallPre.csv /input || exit 0
 
+
 mvn: _mvn-package copy-jar _mvn-clean
 
 copy-jar:
@@ -97,6 +98,75 @@ users-question-score-sum:
 	./hdfs dfs -ls /output/${@}
 	./hdfs dfs -cat /output/${@}/part* | head
 
+
+question-tfidf:
+	# Clear the output directory
+	./hdfs dfs -rm -r -f /output/${@}
+	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
+	# Run MapReduce job
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} TFIDFQuestionBody /input/QuestionsPre.csv /output/${@}
+	# Output files:
+	./hdfs dfs -get /output/${@} /app/res
+	./hdfs dfs -ls /output/${@}
+	./hdfs dfs -cat /output/${@}/part* | head
+
+
+question-statistics:
+	# Clear the output directory
+	./hdfs dfs -rm -r -f /output/${@}
+	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
+	# Run MapReduce job
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} QuestionScoreStatistics /input/QuestionsPre.csv /output/${@}
+	# Output files:
+	./hdfs dfs -get /output/${@} /app/res
+	./hdfs dfs -ls /output/${@}
+	./hdfs dfs -cat /output/${@}/part* | head
+
+
+answer-statistics:
+	# Clear the output directory
+	./hdfs dfs -rm -r -f /output/${@}
+	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
+	# Run MapReduce job
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} AnswerScoreStatistics /input/AnswersPre.csv /output/${@}
+	# Output files:
+	./hdfs dfs -get /output/${@} /app/res
+	./hdfs dfs -ls /output/${@}
+	./hdfs dfs -cat /output/${@}/part* | head
+
+wc-answers:
+	# Clear the output directory
+	./hdfs dfs -rm -r -f /output/${@}
+	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
+	# Run MapReduce job
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} AnswerWordCount /input/AnswersPre.csv /output/${@}
+	# Output files:
+	./hdfs dfs -get /output/${@} /app/res
+	./hdfs dfs -ls /output/${@}
+	./hdfs dfs -cat /output/${@}/part* | head
+
+wc-questions-body:
+	# Clear the output directory
+	./hdfs dfs -rm -r -f /output/${@}
+	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
+	# Run MapReduce job
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} QuestionBodyWordCount /input/QuestionsPre.csv /output/${@}
+	# Output files:
+	./hdfs dfs -get /output/${@} /app/res
+	./hdfs dfs -ls /output/${@}
+	./hdfs dfs -cat /output/${@}/part* | head
+
+wc-questions-title:
+	# Clear the output directory
+	./hdfs dfs -rm -r -f /output/${@}
+	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
+	# Run MapReduce job
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} QuestionTitleWordCount /input/QuestionsPre.csv /output/${@}
+	# Output files:
+	./hdfs dfs -get /output/${@} /app/res
+	./hdfs dfs -ls /output/${@}
+	./hdfs dfs -cat /output/${@}/part* | head
+
 wordcount:
 	# Run wordcount example using HDFS and MapReduce
 	./hdfs dfs -rm -r -f /test_input
@@ -107,6 +177,8 @@ wordcount:
 	./hdfs dfs -get /test_output /app/res
 	./hdfs dfs -ls /test_output
 	./hdfs dfs -cat /test_output/part*
+
+
 
 
 #
