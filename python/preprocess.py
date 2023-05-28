@@ -135,5 +135,5 @@ if __name__ == "__main__":
     answers = answers[word_count >= 3]
 
     # Save the column data to the Body file
-    questions.to_csv("jobs/data/QuestionsSmallPre.csv", header=True, index=False, na_rep='NA')
-    answers.to_csv("jobs/data/AnswersSmallPre.csv", header=True, index=False, na_rep='NA', )
+    questions.to_csv("jobs/data/QuestionsSmallPre.csv", header=False, index=False, na_rep='NA')
+    answers.to_csv("jobs/data/AnswersSmallPre.csv", header=False, index=False, na_rep='NA', )

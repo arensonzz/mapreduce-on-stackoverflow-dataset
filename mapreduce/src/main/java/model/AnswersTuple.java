@@ -45,10 +45,6 @@ public class AnswersTuple implements Writable {
     }
 
     public static AnswersTuple parseCsvLine(Long key, Text line) throws IOException {
-        // Skip if the input is csv header
-        if (key == 0 && line.toString().contains("CreationDate")) {
-            return null;
-        }
         CSVParser parser = new CSVParser();
         AnswersTuple tuple = new AnswersTuple();
         String[] fields = parser.parseLine(line.toString());
@@ -78,7 +74,7 @@ public class AnswersTuple implements Writable {
         }
         dataOutput.writeLong(parentId);
         dataOutput.writeInt(score);
-        dataOutput.writeBytes(body.replaceAll("(\r\n|\r|\n)", " ") + "\n");
+        dataOutput.writeBytes(body + "\n");
     }
 
     @Override

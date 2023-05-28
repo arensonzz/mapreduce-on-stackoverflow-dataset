@@ -55,9 +55,7 @@ public class ParseAnswers {
             AnswersTuple tuple;
 
             // Parse line into object fields
-            if ((tuple = AnswersTuple.parseCsvLine(key.get(), values)) == null) {
-                return;
-            }
+            tuple = AnswersTuple.parseCsvLine(key.get(), values));
             id.set(tuple.getId());
 
             context.write(id, tuple);
