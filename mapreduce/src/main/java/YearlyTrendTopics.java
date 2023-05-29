@@ -18,7 +18,9 @@ import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class YearlyTrendTopics {
@@ -75,19 +77,19 @@ public class YearlyTrendTopics {
 
             for (QuestionsTuple tuple :
                     tuples) {
-                
+
                 for (String tag :
                         tuple.getTags()) {
                     tagScores.put(tag, tagScores.getOrDefault(tag, 0) + tuple.getScore());
                 }
             }
-            
+
             int max = Collections.max(tagScores.values());
 
             for (Map.Entry<String, Integer> entry : tagScores.entrySet()) {
                 if (entry.getValue() == max) {
                     Text trendTag = new Text();
-                    
+
                     trendTag.set(entry.getKey() + ", " + entry.getValue());
                     context.write(key, trendTag);
                 }

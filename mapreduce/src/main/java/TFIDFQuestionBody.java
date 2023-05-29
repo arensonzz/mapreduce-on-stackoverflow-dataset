@@ -20,7 +20,7 @@ public class TFIDFQuestionBody {
 
         // Job Config
         conf.setInt("mapreduce.input.lineinputformat.linespermap", 80000);
-        Job job = Job.getInstance(conf, "TF-IDF calculation");
+        Job job = Job.getInstance(conf, "tfidf questin body");
         job.setJarByClass(TFIDFQuestionBody.class);
 
         // Mapper Config

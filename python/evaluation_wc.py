@@ -55,7 +55,7 @@ def generate_performance_figures(input_sizes, hadoop_times, python_times):
     plt.title('Hadoop vs Python Job Performance')
     plt.grid(True)
     plt.legend()
-    plt.savefig('performance_figure.png')
+    plt.savefig('hadoop_vs_python_word_count.png')
     plt.show()
 
 

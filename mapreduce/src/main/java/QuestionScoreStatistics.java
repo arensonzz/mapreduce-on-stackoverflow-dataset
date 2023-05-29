@@ -18,7 +18,7 @@ import java.util.List;
 public class QuestionScoreStatistics {
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "Score Statistics");
+        Job job = Job.getInstance(conf, "question score statistics");
         job.setJarByClass(QuestionScoreStatistics.class);
         job.setMapperClass(QuestionScoreMapper.class);
         job.setReducerClass(QuestionScoreReducer.class);
@@ -30,11 +30,11 @@ public class QuestionScoreStatistics {
     }
 
     public static class QuestionScoreMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
-        private final static IntWritable scoreValue = new IntWritable();
         private final Text statsKey = new Text("statistics");
 
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             QuestionsTuple tuple = QuestionsTuple.parseCsvLine(key.get(), value);
+            IntWritable scoreValue = new IntWritable();
 
             // Emit the score value
             scoreValue.set(tuple.getScore());

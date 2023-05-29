@@ -18,7 +18,7 @@ import java.util.List;
 public class AnswerScoreStatistics {
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "Score Statistics");
+        Job job = Job.getInstance(conf, "answer score statistics");
         job.setJarByClass(AnswerScoreStatistics.class);
         job.setMapperClass(AnswerScoreMapper.class);
         job.setReducerClass(AnswerScoreReducer.class);
@@ -30,11 +30,11 @@ public class AnswerScoreStatistics {
     }
 
     public static class AnswerScoreMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
-        private final static IntWritable scoreValue = new IntWritable();
         private final Text statsKey = new Text("statistics");
 
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             AnswersTuple tuple = AnswersTuple.parseCsvLine(key.get(), value);
+            IntWritable scoreValue = new IntWritable();
 
             // Emit the score value
             scoreValue.set(tuple.getScore());
@@ -43,10 +43,10 @@ public class AnswerScoreStatistics {
     }
 
     public static class AnswerScoreReducer extends Reducer<Text, IntWritable, Text, Text> {
-        private final Text result = new Text();
 
         public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
             List<Integer> scores = new ArrayList<>();
+            Text result = new Text();
 
             // Collect all the scores
             for (IntWritable value : values) {
@@ -75,17 +75,16 @@ public class AnswerScoreStatistics {
             int median = count % 2 == 0 ? (scores.get(count / 2 - 1) + scores.get(count / 2)) / 2 : scores.get(count / 2);
 
             // Prepare the result string
-            StringBuilder statistics = new StringBuilder();
-            statistics.append("\n");
-            statistics.append("Count: ").append(count).append("\n");
-            statistics.append("Average: ").append(average).append("\n");
-            statistics.append("Median: ").append(median).append("\n");
-            statistics.append("Min: ").append(minimum).append("\n");
-            statistics.append("Max: ").append(maximum).append("\n");
-            statistics.append("Standard Deviation: ").append(standardDeviation).append("\n");
+            String statistics = "\n" +
+                    "Count: " + count + "\n" +
+                    "Average: " + average + "\n" +
+                    "Median: " + median + "\n" +
+                    "Min: " + minimum + "\n" +
+                    "Max: " + maximum + "\n" +
+                    "Standard Deviation: " + standardDeviation + "\n";
 
             // Output the result
-            result.set(statistics.toString());
+            result.set(statistics);
             context.write(key, result);
         }
     }

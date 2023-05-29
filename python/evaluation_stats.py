@@ -2,7 +2,6 @@ import subprocess
 import time
 import matplotlib.pyplot as plt
 import pandas as pd
-from collections import Counter
 
 
 def run_hadoop_job(input_path, output_path):
@@ -63,7 +62,7 @@ def generate_performance_figures(input_sizes, hadoop_times, python_times):
     plt.title('Hadoop vs Python Job Performance')
     plt.grid(True)
     plt.legend()
-    plt.savefig('performance_figure.png')
+    plt.savefig('hadoop_vs_python_stats.png')
     plt.show()
 
 

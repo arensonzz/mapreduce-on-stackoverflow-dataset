@@ -16,7 +16,7 @@ public class QuestionTitleWordCount {
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "word count");
+        Job job = Job.getInstance(conf, "question title word count");
         job.setJarByClass(QuestionTitleWordCount.class);
         job.setMapperClass(TokenizerMapper.class);
         job.setCombinerClass(CountReducer.class);
@@ -30,11 +30,10 @@ public class QuestionTitleWordCount {
 
     public static class TokenizerMapper
             extends Mapper<LongWritable, Text, Text, IntWritable> {
-
-        private final static IntWritable one = new IntWritable(1);
-        private Text word = new Text();
+        private final IntWritable one = new IntWritable(1);
 
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+            Text word = new Text();
             QuestionsTuple tuple = QuestionsTuple.parseCsvLine(key.get(), value);
             String[] title = tuple.getTitle().split("\\s+");  // Split the title into individual terms
 
@@ -48,10 +47,10 @@ public class QuestionTitleWordCount {
     public static class CountReducer
             extends Reducer<Text, IntWritable, Text, IntWritable> {
 
-        private IntWritable result = new IntWritable();
-
         public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+            IntWritable result = new IntWritable();
             int sum = 0;
+
             for (IntWritable val : values) {
                 sum += val.get();
             }
