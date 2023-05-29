@@ -18,11 +18,13 @@ all: ready
 #
 ready: clean up move-data mvn
 
+
 up:
 	# Start Hadoop nodes
 	docker compose up -d
 	# Create volume for Maven local repository
 	docker volume create --name maven-repo
+
 
 move-data: ${DATA_FILES}
 	# Move input files inside "jobs/data" to the HDFS.
@@ -36,9 +38,11 @@ move-data: ${DATA_FILES}
 
 mvn: _mvn-package copy-jar _mvn-clean
 
+
 copy-jar:
 	# Copy the JAR file located in "mapreduce/target" to "jobs/jars".
 	cp mapreduce/target/${MAIN_JAR_NAME} jobs/jars
+
 
 preprocess:
 	@docker build -t "${PROJECT_NAME}-python" python
@@ -48,8 +52,8 @@ preprocess:
 
 clean: _mvn-clean
 	# Clear the "jobs/res" directory.
-	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res -mindepth 1 -delete || exit 0
-	@touch jobs/res/.gitkeep
+	# @docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res -mindepth 1 -delete || exit 0
+	# @touch jobs/res/.gitkeep
 	# Stop Hadoop cluster.
 	docker compose down --volumes
 
@@ -65,7 +69,7 @@ users-question-score-sum:
 	# Output files:
 	./hdfs dfs -get /output/${@} /app/res
 	./hdfs dfs -ls /output/${@}
-	./hdfs dfs -cat /output/${@}/part* | head
+	sort -n -k 2 -r "jobs/res/${@}/part-r-00000" | head
 
 
 question-tfidf:
@@ -103,6 +107,7 @@ answer-statistics:
 	./hdfs dfs -ls /output/${@}
 	./hdfs dfs -cat /output/${@}/part* | head
 
+
 wc-answers:
 	# Clear the output directory
 	./hdfs dfs -rm -r -f /output/${@}
@@ -112,7 +117,8 @@ wc-answers:
 	# Output files:
 	./hdfs dfs -get /output/${@} /app/res
 	./hdfs dfs -ls /output/${@}
-	./hdfs dfs -cat /output/${@}/part* | head
+	sort -n -k 2 -r "jobs/res/${@}/part-r-00000" | head
+
 
 wc-questions-body:
 	# Clear the output directory
@@ -124,6 +130,8 @@ wc-questions-body:
 	./hdfs dfs -get /output/${@} /app/res
 	./hdfs dfs -ls /output/${@}
 	./hdfs dfs -cat /output/${@}/part* | head
+	sort -n -k 2 -r "jobs/res/${@}/part-r-00000" | head
+
 
 wc-questions-title:
 	# Clear the output directory
@@ -135,6 +143,8 @@ wc-questions-title:
 	./hdfs dfs -get /output/${@} /app/res
 	./hdfs dfs -ls /output/${@}
 	./hdfs dfs -cat /output/${@}/part* | head
+	sort -n -k 2 -r "jobs/res/${@}/part-r-00000" | head
+
 
 yearly-trend-topics:
 	# Clear the output directory
