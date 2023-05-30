@@ -11,12 +11,16 @@ DATA_FILES:=jobs/data/QuestionsPre.csv jobs/data/AnswersPre.csv
 .DELETE_ON_ERROR:
 
 # Default target
-all: ready
+all: ready run
 
 #
 # General Targets
 #
 ready: clean up move-data mvn
+
+
+run:
+	java -cp jobs/jars/${MAIN_JAR_NAME} UserInterface
 
 
 up:
