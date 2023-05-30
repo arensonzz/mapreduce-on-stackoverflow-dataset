@@ -30,17 +30,25 @@ public class AppContainer extends JFrame {
     private final JLabel lblFileHeader = new JLabel("File Upload");
     private final JLabel lblE = new JLabel("Destination Path:");
     private final JLabel lblD = new JLabel("Selected File:");
-    private final JTextField showSelectedFile = new JTextField();
+    private final JLabel lblF = new JLabel("Selected File:");
+    private final JTextField uploadSelectedFile = new JTextField();
     private final JTextField txtE = new JTextField("/input/");
     private final JFileChooser fileChooser = new JFileChooser();
     private final JButton btnSelect = new JButton("Open a File...");
     private final JButton btnUpload = new JButton("Upload Selected File");
     private File selectedFile = null;
 
+    private  final JSeparator sectionSeparator2 = new JSeparator();
+    
+    // File Delete Section
+    private final JLabel lblFileDeleteHeader = new JLabel("File Delete");
+    private final JButton btnDelete = new JButton("Delete Selected File");
+    private final JTextField deleteSelectedFile = new JTextField("/input/");
+
 
     public AppContainer() {
-        setTitle("Big Data Project");
-        setSize(700, 600);
+        setTitle("MapReduce on Stackoverflow Dataset");
+        setSize(700, 700);
         setLocation(new Point(300, 200));
         setLayout(null);
         setResizable(false);
@@ -79,9 +87,9 @@ public class AppContainer extends JFrame {
         btnSelect.setBounds(160, 290, 400, 30);
         add(btnSelect);
         lblD.setBounds(20, 330, 200, 30);
-        showSelectedFile.setBounds(160, 330, 400, 30);
-        showSelectedFile.setEnabled(false);
-        add(showSelectedFile);
+        uploadSelectedFile.setBounds(160, 330, 400, 30);
+        uploadSelectedFile.setEditable(false);
+        add(uploadSelectedFile);
         
         lblE.setBounds(20, 370, 200, 30);
         txtE.setBounds(160, 370, 400, 30);
@@ -89,11 +97,25 @@ public class AppContainer extends JFrame {
         btnUpload.setBounds(160, 410, 400, 30);
         add(btnUpload);
 
+        sectionSeparator2.setBounds(0, 460, 700, 5);
+        add(sectionSeparator2);
+        // File Delete Section
+        lblFileDeleteHeader.setBounds(150, 480, 400, 40);
+        lblFileDeleteHeader.setHorizontalAlignment(SwingConstants.CENTER);
+        add(lblFileDeleteHeader);
+        lblF.setBounds(20, 540, 200, 30);
+        deleteSelectedFile.setBounds(160, 540, 400, 30);
+        add(deleteSelectedFile);
+        btnDelete.setBounds(160, 580, 400, 30);
+        add(btnDelete);
+        
+
         add(lblA);
         add(lblB);
         add(lblC);
         add(lblD);
         add(lblE);
+        add(lblF);
 
         add(txtB);
         add(txtC);
@@ -125,12 +147,32 @@ public class AppContainer extends JFrame {
                             throw new RuntimeException(ex);
                         }
                         btnUpload.setEnabled(true);
-                        btnUpload.setText("Upload");
+                        btnUpload.setText("Upload Selected File");
                     }
                 }).start();
             }
         });
 
+        btnDelete.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (deleteSelectedFile.getText().trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(rootFrame, "Input file not selected!");
+                    return;
+                }
+
+                btnDelete.setEnabled(false);
+                btnDelete.setText("Deleting...");
+
+                new Thread(new Runnable() {
+                    public void run() {
+                        HadoopDFS.deleteData(deleteSelectedFile.getText(), rootFrame);
+                        btnDelete.setEnabled(true);
+                        btnDelete.setText("Delete Selected File");
+                    }
+                }).start();
+            }
+        });
+        
         btnStart.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 btnStart.setEnabled(false);
@@ -150,7 +192,7 @@ public class AppContainer extends JFrame {
 
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     selectedFile = fileChooser.getSelectedFile();
-                    showSelectedFile.setText(selectedFile.getName());
+                    uploadSelectedFile.setText(selectedFile.getName());
                 }
             }
         });
