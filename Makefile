@@ -11,12 +11,13 @@ DATA_FILES:=jobs/data/QuestionsPre.csv jobs/data/AnswersPre.csv
 .DELETE_ON_ERROR:
 
 # Default target
-all: ready run
+all:
+	# Default target
 
 #
 # General Targets
 #
-ready: clean up move-data mvn
+ready: clean up mvn
 
 
 run:
@@ -66,100 +67,114 @@ clean: _mvn-clean
 #
 users-question-score-sum:
 	# Clear the output directory
-	./hdfs dfs -rm -r -f /output/${@}
+	./hdfs dfs -rm -r -f ${OUTPUT_PATH}
 	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
 	# Run MapReduce job
-	./hadoop jar /app/jars/${MAIN_JAR_NAME} UsersQuestionScoreSum /input/QuestionsPre.csv /output/${@}
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} UsersQuestionScoreSum ${INPUT_PATH} ${OUTPUT_PATH}
 	# Output files:
-	./hdfs dfs -get /output/${@} /app/res
-	./hdfs dfs -ls /output/${@}
+	# 	copy to local filesystem
+	./hdfs dfs -get ${OUTPUT_PATH} /app/res
+	# 	preview files
+	./hdfs dfs -ls ${OUTPUT_PATH}
 	sort -n -k 2 -r "jobs/res/${@}/part-r-00000" | head
 
 
 question-tfidf:
 	# Clear the output directory
-	./hdfs dfs -rm -r -f /output/${@}
+	./hdfs dfs -rm -r -f ${OUTPUT_PATH}
 	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
 	# Run MapReduce job
-	./hadoop jar /app/jars/${MAIN_JAR_NAME} TFIDFQuestionBody /input/QuestionsPre.csv /output/${@}
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} TFIDFQuestionBody ${INPUT_PATH} ${OUTPUT_PATH}
 	# Output files:
-	./hdfs dfs -get /output/${@} /app/res
-	./hdfs dfs -ls /output/${@}
-	./hdfs dfs -cat /output/${@}/part* | head
+	# 	copy to local filesystem
+	./hdfs dfs -get ${OUTPUT_PATH} /app/res
+	# 	preview files
+	./hdfs dfs -ls ${OUTPUT_PATH}
+	./hdfs dfs -cat ${OUTPUT_PATH}/part* | head
 
 
 question-statistics:
 	# Clear the output directory
-	./hdfs dfs -rm -r -f /output/${@}
+	./hdfs dfs -rm -r -f ${OUTPUT_PATH}
 	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
 	# Run MapReduce job
-	./hadoop jar /app/jars/${MAIN_JAR_NAME} QuestionScoreStatistics /input/QuestionsPre.csv /output/${@}
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} QuestionScoreStatistics ${INPUT_PATH} ${OUTPUT_PATH}
 	# Output files:
-	./hdfs dfs -get /output/${@} /app/res
-	./hdfs dfs -ls /output/${@}
-	./hdfs dfs -cat /output/${@}/part* | head
+	# 	copy to local filesystem
+	./hdfs dfs -get ${OUTPUT_PATH} /app/res
+	# 	preview files
+	./hdfs dfs -ls ${OUTPUT_PATH}
+	./hdfs dfs -cat ${OUTPUT_PATH}/part*
 
 
 answer-statistics:
 	# Clear the output directory
-	./hdfs dfs -rm -r -f /output/${@}
+	./hdfs dfs -rm -r -f ${OUTPUT_PATH}
 	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
 	# Run MapReduce job
-	./hadoop jar /app/jars/${MAIN_JAR_NAME} AnswerScoreStatistics /input/AnswersPre.csv /output/${@}
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} AnswerScoreStatistics ${INPUT_PATH} ${OUTPUT_PATH}
 	# Output files:
-	./hdfs dfs -get /output/${@} /app/res
-	./hdfs dfs -ls /output/${@}
-	./hdfs dfs -cat /output/${@}/part* | head
+	# 	copy to local filesystem
+	./hdfs dfs -get ${OUTPUT_PATH} /app/res
+	# 	preview files
+	./hdfs dfs -ls ${OUTPUT_PATH}
+	./hdfs dfs -cat ${OUTPUT_PATH}/part*
 
 
 wc-answers:
 	# Clear the output directory
-	./hdfs dfs -rm -r -f /output/${@}
+	./hdfs dfs -rm -r -f ${OUTPUT_PATH}
 	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
 	# Run MapReduce job
-	./hadoop jar /app/jars/${MAIN_JAR_NAME} AnswerWordCount /input/AnswersPre.csv /output/${@}
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} AnswerWordCount ${INPUT_PATH} ${OUTPUT_PATH}
 	# Output files:
-	./hdfs dfs -get /output/${@} /app/res
-	./hdfs dfs -ls /output/${@}
+	# 	copy to local filesystem
+	./hdfs dfs -get ${OUTPUT_PATH} /app/res
+	# 	preview files
+	./hdfs dfs -ls ${OUTPUT_PATH}
 	sort -n -k 2 -r "jobs/res/${@}/part-r-00000" | head
 
 
 wc-questions-body:
 	# Clear the output directory
-	./hdfs dfs -rm -r -f /output/${@}
+	./hdfs dfs -rm -r -f ${OUTPUT_PATH}
 	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
 	# Run MapReduce job
-	./hadoop jar /app/jars/${MAIN_JAR_NAME} QuestionBodyWordCount /input/QuestionsPre.csv /output/${@}
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} QuestionBodyWordCount ${INPUT_PATH} ${OUTPUT_PATH}
 	# Output files:
-	./hdfs dfs -get /output/${@} /app/res
-	./hdfs dfs -ls /output/${@}
-	./hdfs dfs -cat /output/${@}/part* | head
+	# 	copy to local filesystem
+	./hdfs dfs -get ${OUTPUT_PATH} /app/res
+	# 	preview files
+	./hdfs dfs -ls ${OUTPUT_PATH}
 	sort -n -k 2 -r "jobs/res/${@}/part-r-00000" | head
 
 
 wc-questions-title:
 	# Clear the output directory
-	./hdfs dfs -rm -r -f /output/${@}
+	./hdfs dfs -rm -r -f ${OUTPUT_PATH}
 	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
 	# Run MapReduce job
-	./hadoop jar /app/jars/${MAIN_JAR_NAME} QuestionTitleWordCount /input/QuestionsPre.csv /output/${@}
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} QuestionTitleWordCount ${INPUT_PATH} ${OUTPUT_PATH}
 	# Output files:
-	./hdfs dfs -get /output/${@} /app/res
-	./hdfs dfs -ls /output/${@}
-	./hdfs dfs -cat /output/${@}/part* | head
+	# 	copy to local filesystem
+	./hdfs dfs -get ${OUTPUT_PATH} /app/res
+	# 	preview files
+	./hdfs dfs -ls ${OUTPUT_PATH}
 	sort -n -k 2 -r "jobs/res/${@}/part-r-00000" | head
 
 
 yearly-trend-topics:
 	# Clear the output directory
-	./hdfs dfs -rm -r -f /output/${@}
+	./hdfs dfs -rm -r -f ${OUTPUT_PATH}
 	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
 	# Run MapReduce job
-	./hadoop jar /app/jars/${MAIN_JAR_NAME} YearlyTrendTopics /input/QuestionsPre.csv /output/${@}
+	./hadoop jar /app/jars/${MAIN_JAR_NAME} YearlyTrendTopics ${INPUT_PATH} ${OUTPUT_PATH}
 	# Output files:
-	./hdfs dfs -get /output/${@} /app/res
-	./hdfs dfs -ls /output/${@}
-	./hdfs dfs -cat /output/${@}/part* | head
+	# 	copy to local filesystem
+	./hdfs dfs -get ${OUTPUT_PATH} /app/res
+	# 	preview files
+	./hdfs dfs -ls ${OUTPUT_PATH}
+	./hdfs dfs -cat ${OUTPUT_PATH}/part* | head
 
 
 #

@@ -202,28 +202,28 @@ public class AppContainer extends JFrame {
     private void btnStartClick() {
         switch (selector.getSelectedIndex()) {
             case 0:
-                DockerCommand.RunMapReduce("UsersQuestionScoreSum", txtB.getText(), txtC.getText());
+                DockerCommand.RunMapReduce("users-question-score-sum", txtB.getText(), txtC.getText());
                 break;
             case 1:
-                DockerCommand.RunMapReduce("TFIDFQuestionBody", txtB.getText(), txtC.getText());
+                DockerCommand.RunMapReduce("question-tfidf", txtB.getText(), txtC.getText());
                 break;
             case 2:
-                DockerCommand.RunMapReduce("AnswerWordCount", txtB.getText(), txtC.getText());
+                DockerCommand.RunMapReduce("wc-answers", txtB.getText(), txtC.getText());
                 break;
             case 3:
-                DockerCommand.RunMapReduce("QuestionBodyWordCount", txtB.getText(), txtC.getText());
+                DockerCommand.RunMapReduce("wc-questions-body", txtB.getText(), txtC.getText());
                 break;
             case 4:
-                DockerCommand.RunMapReduce("QuestionTitleWordCount", txtB.getText(), txtC.getText());
+                DockerCommand.RunMapReduce("wc-questions-title", txtB.getText(), txtC.getText());
                 break;
             case 5:
-                DockerCommand.RunMapReduce("QuestionScoreStatistics", txtB.getText(), txtC.getText());
+                DockerCommand.RunMapReduce("question-statistics", txtB.getText(), txtC.getText());
                 break;
             case 6:
-                DockerCommand.RunMapReduce("AnswerScoreStatistics", txtB.getText(), txtC.getText());
+                DockerCommand.RunMapReduce("answer-statistics", txtB.getText(), txtC.getText());
                 break;
             case 7:
-                DockerCommand.RunMapReduce("YearlyTrendTopics", txtB.getText(), txtC.getText());
+                DockerCommand.RunMapReduce("yearly-trend-topics", txtB.getText(), txtC.getText());
                 break;
         }
         btnStart.setEnabled(true);

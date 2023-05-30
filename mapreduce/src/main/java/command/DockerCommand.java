@@ -6,14 +6,17 @@ import org.apache.commons.io.IOUtils;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.util.HashMap;
 
 public class DockerCommand {
 
     public static void RunMapReduce(String type, String input, String output) {
         ProcessBuilder builder = new ProcessBuilder();
-        builder.command(
-                "docker", "exec", "namenode", "hadoop",
-                "jar", "/app/jars/mapreduce-stackoverflow-1.0.jar", type, input, output);
+        HashMap<String, String> envs = new HashMap<>();
+        
+        builder.environment().put("INPUT_PATH", input);
+        builder.environment().put("OUTPUT_PATH", output);
+        builder.command("make", type);
         builder.redirectErrorStream(true);
 
         try {
