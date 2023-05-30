@@ -56,9 +56,6 @@ preprocess:
 
 
 clean: _mvn-clean
-	# Clear the "jobs/res" directory.
-	# @docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res -mindepth 1 -delete || exit 0
-	# @touch jobs/res/.gitkeep
 	# Stop Hadoop cluster.
 	docker compose down --volumes
 

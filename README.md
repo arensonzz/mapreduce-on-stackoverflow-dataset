@@ -31,15 +31,16 @@ Docker Desktop is required (and it is the easiest way to get Docker work on your
 You can download [Docker Desktop for Mac](https://docs.docker.com/desktop/install/mac-install/) (both ) or 
 [Docker Desktop for Linux](https://docs.docker.com/desktop/install/linux-install/).
 
-## Run the Example Map-Reduce Job on the Cluster
+## Run the Application
 
-1. First you must start the Hadoop Cluster. To do this you can run `make up`. This will pull
+1. First you must start the Hadoop Cluster, and build Java program with Maven. 
+    To do this you can run `make ready`. This will pull
     the images from Docker Hub and then start needed nodes. 
     This process might take few minutes if you are running it for the first time.
     After the pull is complete, it will wait until all nodes are ready.
 
-1. After the cluster is up, you should start the MapReduce job. To do that
-    simply run `make wordcount`.
+1. After the cluster is up, you should start the GUI. To do that
+    simply run `make run`.
 
 1. To stop the nodes and delete output files, run `make clean`.
 
@@ -52,10 +53,6 @@ You can download [Docker Desktop for Mac](https://docs.docker.com/desktop/instal
 * Historyserver: http://localhost:8188
 
 > Note If you are redirected to a URL like http://119e8b128bd5:8042/ or http://resourcemanager:8088/, change the host name to localhost (i.e. http://localhost:8042/) and it will work. This is because Docker containers use their own IPs which are mapped to different names.
-
-## Features
-
-TODO
 
 ## Technologies
 
