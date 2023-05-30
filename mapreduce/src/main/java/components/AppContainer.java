@@ -1,6 +1,7 @@
 package components;
 
 import command.DockerCommand;
+import command.HadoopDFS;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,27 +13,30 @@ import java.io.File;
 import java.io.IOException;
 
 public class AppContainer extends JFrame {
-
-    private final JButton btnStart = new JButton("Start Job");
-
-    private final MapReduceSelector selector = new MapReduceSelector();
+    // MapReduce Job Section
+    private final JLabel lblJobHeader = new JLabel("MapReduce Job");
+    private final JLabel lblA = new JLabel("Select Job:");
+    private final JLabel lblB = new JLabel("HDFS Input Path:");
+    private final JLabel lblC = new JLabel("HDFS Output Path:");
     private final JTextField txtB = new JTextField("/input/");
     private final JTextField txtC = new JTextField("/output/");
+    private final MapReduceSelector selector = new MapReduceSelector();
+    private final JButton btnStart = new JButton("Start Job");
+    private final JFrame rootFrame = this;
     
-    //private final JTextField txtD = new JTextField("../data/");
+    private  final JSeparator sectionSeparator = new JSeparator();
+    
+    // File Upload Section
+    private final JLabel lblFileHeader = new JLabel("File Upload");
+    private final JLabel lblE = new JLabel("Destination Path:");
+    private final JLabel lblD = new JLabel("Selected File:");
+    private final JTextField showSelectedFile = new JTextField();
+    private final JTextField txtE = new JTextField("/input/");
     private final JFileChooser fileChooser = new JFileChooser();
-    
-    private final JLabel showSelectedFile = new JLabel();
     private final JButton btnSelect = new JButton("Open a File...");
     private final JButton btnUpload = new JButton("Upload Selected File");
     private File selectedFile = null;
-    private final JTextField txtE = new JTextField("/input/");
 
-    private final JLabel lblA = new JLabel("MapReduce Job:");
-    private final JLabel lblB = new JLabel("HDFS Input Path:");
-    private final JLabel lblC = new JLabel("HDFS Output Path:");
-    private final JLabel lblD = new JLabel("Selected File:");
-    private final JLabel lblE = new JLabel("Destination Path:");
 
     public AppContainer() {
         setTitle("Big Data Project");
@@ -46,46 +50,57 @@ public class AppContainer extends JFrame {
     }
 
     private void initComponent() {
-
-        lblA.setBounds(20, 10, 200, 30);
-        selector.setBounds(160, 10, 400, 30);
+        // MapReduce Job Section
+        lblJobHeader.setBounds(150, 10, 400, 40);
+        lblJobHeader.setHorizontalAlignment(SwingConstants.CENTER);
+        add(lblJobHeader);
+        
+        lblA.setBounds(20, 70, 200, 30);
+        selector.setBounds(160, 70, 400, 30);
         add(selector);
 
-        lblB.setBounds(20, 35, 200, 30);
-        txtB.setBounds(160, 35, 400, 30);
+        lblB.setBounds(20, 95, 200, 30);
+        txtB.setBounds(160, 95, 400, 30);
 
-        lblC.setBounds(20, 60, 200, 30);
-        txtC.setBounds(160, 60, 400, 30);
+        lblC.setBounds(20, 120, 200, 30);
+        txtC.setBounds(160, 120, 400, 30);
 
-        btnStart.setBounds(160, 90, 400, 30);
+        btnStart.setBounds(160, 160, 400, 30);
         add(btnStart);
-
-        lblD.setBounds(20, 180, 200, 30);
-        //fileChooser.setBounds(160, 140, 400, 300);
-        btnSelect.setBounds(20, 140, 200, 30);
-        btnUpload.setBounds(160, 225, 400, 30);
-        showSelectedFile.setBounds(20, 180, 200, 30);
-
-        lblE.setBounds(20, 395, 200, 30);
-        txtE.setBounds(160, 395, 400, 30);
+        
+        sectionSeparator.setBounds(0, 210, 700, 5);
+        add(sectionSeparator);
+        
+        // File Upload Section
+        lblFileHeader.setBounds(150, 230, 400, 40);
+        lblFileHeader.setHorizontalAlignment(SwingConstants.CENTER);
+        add(lblFileHeader);
+         
+        btnSelect.setBounds(160, 290, 400, 30);
+        add(btnSelect);
+        lblD.setBounds(20, 330, 200, 30);
+        showSelectedFile.setBounds(160, 330, 400, 30);
+        showSelectedFile.setEnabled(false);
+        add(showSelectedFile);
+        
+        lblE.setBounds(20, 370, 200, 30);
+        txtE.setBounds(160, 370, 400, 30);
+        
+        btnUpload.setBounds(160, 410, 400, 30);
+        add(btnUpload);
 
         add(lblA);
         add(lblB);
         add(lblC);
         add(lblD);
-        add(btnSelect);
-        add(btnUpload);
-        add(showSelectedFile);
         add(lblE);
 
         add(txtB);
         add(txtC);
-        add(fileChooser);
         add(txtE);
     }
 
     private void initEvent() {
-
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 System.exit(1);
@@ -94,11 +109,21 @@ public class AppContainer extends JFrame {
 
         btnUpload.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                if (selectedFile == null || txtE.getText().trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(rootFrame, "Input file or destination directory not selected!");
+                    return;
+                }
+                
                 btnUpload.setEnabled(false);
                 btnUpload.setText("Uploading...");
+                
                 new Thread(new Runnable() {
                     public void run() {
-                        //HadoopDFS.uploadData(txtD.getText(), txtE.getText());
+                        try {
+                            HadoopDFS.uploadData(selectedFile.getCanonicalPath(), txtE.getText(), rootFrame);
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
                         btnUpload.setEnabled(true);
                         btnUpload.setText("Upload");
                     }
@@ -125,13 +150,7 @@ public class AppContainer extends JFrame {
 
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
                     selectedFile = fileChooser.getSelectedFile();
-                    //This is where a real application would open the file.
-                    try {
-                        
-                        System.out.println(file.getCanonicalPath());
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    }
+                    showSelectedFile.setText(selectedFile.getName());
                 }
             }
         });
@@ -168,4 +187,5 @@ public class AppContainer extends JFrame {
         btnStart.setEnabled(true);
         btnStart.setText("Start");
     }
+    
 }
