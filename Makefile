@@ -6,6 +6,7 @@
 # Source default environment variables from .env file
 include .env
 DATA_FILES:=jobs/data/QuestionsPre.csv jobs/data/AnswersPre.csv
+OUTPUT_PATH_FOLDER:=$(lastword ,$(subst /, ,${OUTPUT_PATH}))
 
 
 .DELETE_ON_ERROR:
@@ -63,23 +64,23 @@ clean: _mvn-clean
 # MapReduce Job Targets
 #
 users-question-score-sum:
-	# Clear the output directory
+	# Clear the output and res directories
 	./hdfs dfs -rm -r -f ${OUTPUT_PATH}
-	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
+	@docker run -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/"${OUTPUT_PATH_FOLDER}" -delete || exit 0
 	# Run MapReduce job
 	./hadoop jar /app/jars/${MAIN_JAR_NAME} UsersQuestionScoreSum ${INPUT_PATH} ${OUTPUT_PATH}
 	# Output files:
 	# 	copy to local filesystem
-	./hdfs dfs -get ${OUTPUT_PATH} /app/res
+	./hdfs dfs -get ${OUTPUT_PATH} /app/res/
 	# 	preview files
 	./hdfs dfs -ls ${OUTPUT_PATH}
-	sort -n -k 2 -r "jobs/res/${@}/part-r-00000" | head
+	sort -n -k 2 -r "jobs/res/${OUTPUT_PATH_FOLDER}/part-r-00000" | head
 
 
 question-tfidf:
-	# Clear the output directory
+	# Clear the output and res directories
 	./hdfs dfs -rm -r -f ${OUTPUT_PATH}
-	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
+	@docker run -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${OUTPUT_PATH_FOLDER} -delete || exit 0
 	# Run MapReduce job
 	./hadoop jar /app/jars/${MAIN_JAR_NAME} TFIDFQuestionBody ${INPUT_PATH} ${OUTPUT_PATH}
 	# Output files:
@@ -91,9 +92,9 @@ question-tfidf:
 
 
 question-statistics:
-	# Clear the output directory
+	# Clear the output directories
 	./hdfs dfs -rm -r -f ${OUTPUT_PATH}
-	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
+	@docker run -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${OUTPUT_PATH_FOLDER} -delete || exit 0
 	# Run MapReduce job
 	./hadoop jar /app/jars/${MAIN_JAR_NAME} QuestionScoreStatistics ${INPUT_PATH} ${OUTPUT_PATH}
 	# Output files:
@@ -105,9 +106,9 @@ question-statistics:
 
 
 answer-statistics:
-	# Clear the output directory
+	# Clear the output and res directories
 	./hdfs dfs -rm -r -f ${OUTPUT_PATH}
-	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
+	@docker run -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${OUTPUT_PATH_FOLDER} -delete || exit 0
 	# Run MapReduce job
 	./hadoop jar /app/jars/${MAIN_JAR_NAME} AnswerScoreStatistics ${INPUT_PATH} ${OUTPUT_PATH}
 	# Output files:
@@ -119,9 +120,9 @@ answer-statistics:
 
 
 wc-answers:
-	# Clear the output directory
+	# Clear the output and res directories
 	./hdfs dfs -rm -r -f ${OUTPUT_PATH}
-	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
+	@docker run -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${OUTPUT_PATH_FOLDER} -delete || exit 0
 	# Run MapReduce job
 	./hadoop jar /app/jars/${MAIN_JAR_NAME} AnswerWordCount ${INPUT_PATH} ${OUTPUT_PATH}
 	# Output files:
@@ -129,13 +130,13 @@ wc-answers:
 	./hdfs dfs -get ${OUTPUT_PATH} /app/res
 	# 	preview files
 	./hdfs dfs -ls ${OUTPUT_PATH}
-	sort -n -k 2 -r "jobs/res/${@}/part-r-00000" | head
+	sort -n -k 2 -r "jobs/res/${OUTPUT_PATH_FOLDER}/part-r-00000" | head
 
 
 wc-questions-body:
-	# Clear the output directory
+	# Clear the output and res directories
 	./hdfs dfs -rm -r -f ${OUTPUT_PATH}
-	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
+	@docker run -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${OUTPUT_PATH_FOLDER} -delete || exit 0
 	# Run MapReduce job
 	./hadoop jar /app/jars/${MAIN_JAR_NAME} QuestionBodyWordCount ${INPUT_PATH} ${OUTPUT_PATH}
 	# Output files:
@@ -143,13 +144,13 @@ wc-questions-body:
 	./hdfs dfs -get ${OUTPUT_PATH} /app/res
 	# 	preview files
 	./hdfs dfs -ls ${OUTPUT_PATH}
-	sort -n -k 2 -r "jobs/res/${@}/part-r-00000" | head
+	sort -n -k 2 -r "jobs/res/${OUTPUT_PATH_FOLDER}/part-r-00000" | head
 
 
 wc-questions-title:
-	# Clear the output directory
+	# Clear the output directories
 	./hdfs dfs -rm -r -f ${OUTPUT_PATH}
-	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
+	@docker run -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${OUTPUT_PATH_FOLDER} -delete || exit 0
 	# Run MapReduce job
 	./hadoop jar /app/jars/${MAIN_JAR_NAME} QuestionTitleWordCount ${INPUT_PATH} ${OUTPUT_PATH}
 	# Output files:
@@ -157,13 +158,13 @@ wc-questions-title:
 	./hdfs dfs -get ${OUTPUT_PATH} /app/res
 	# 	preview files
 	./hdfs dfs -ls ${OUTPUT_PATH}
-	sort -n -k 2 -r "jobs/res/${@}/part-r-00000" | head
+	sort -n -k 2 -r "jobs/res/${OUTPUT_PATH_FOLDER}/part-r-00000" | head
 
 
 yearly-trend-topics:
-	# Clear the output directory
+	# Clear the output directories
 	./hdfs dfs -rm -r -f ${OUTPUT_PATH}
-	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${@} -delete || exit 0
+	@docker run -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res/${OUTPUT_PATH_FOLDER} -delete || exit 0
 	# Run MapReduce job
 	./hadoop jar /app/jars/${MAIN_JAR_NAME} YearlyTrendTopics ${INPUT_PATH} ${OUTPUT_PATH}
 	# Output files:
