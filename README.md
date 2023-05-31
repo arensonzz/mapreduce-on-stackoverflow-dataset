@@ -23,6 +23,10 @@ and different descriptive statistics methods based on the MapReduce Framework.
 
 This is a MapReduce application written in Java which runs on Apache Hadoop cluster.
 
+<img src="docs/images/finished_mapreduce_job_gui.png"
+     alt="GUI of the application and output of finished MapReduce job."
+     style="margin: 10px 0; max-width: 100%; border: 1px black solid;" />
+
 ## Requirements
 
 Docker Desktop is required (and it is the easiest way to get Docker work on your laptop).
