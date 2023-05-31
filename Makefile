@@ -1,19 +1,18 @@
 # Makefile for mapreduce-on-stackoverflow-dataset
 #
 # @author arensonzz
-# project_name:=mapreduce-on-stackoverflow-dataset
 
 # Source default environment variables from .env file
 include .env
-DATA_FILES:=jobs/data/QuestionsPre.csv jobs/data/AnswersPre.csv
+
+# Define Variables
 OUTPUT_PATH_FOLDER:=$(lastword ,$(subst /, ,${OUTPUT_PATH}))
 
 
 .DELETE_ON_ERROR:
 
-# Default target
 all:
-	# Default target
+	@echo "You can start the Hadoop cluster with \`make ready\` and then use \`make run\` to start the GUI."
 
 #
 # General Targets
@@ -35,9 +34,6 @@ up:
 move-data: ${DATA_FILES}
 	# Move input files inside "jobs/data" to the HDFS.
 	@./hdfs dfs -mkdir -p /input
-	@./hdfs dfs -put /app/data/test.txt /input || exit 0
-	@./hdfs dfs -put /app/data/QuestionsPre.csv /input || exit 0
-	@./hdfs dfs -put /app/data/AnswersPre.csv /input || exit 0
 	@./hdfs dfs -put /app/data/QuestionsSmallPre.csv /input || exit 0
 	@./hdfs dfs -put /app/data/AnswersSmallPre.csv /input || exit 0
 
@@ -57,6 +53,9 @@ preprocess:
 
 
 clean: _mvn-clean
+	# Clear the "jobs/res" directory.
+	@docker run -it -v "$(shell pwd)/jobs":/usr/src/tmp alpine find /usr/src/tmp/res -mindepth 1 -delete || exit 0
+	@touch jobs/res/.gitkeep
 	# Stop Hadoop cluster.
 	docker compose down --volumes
 
@@ -186,13 +185,5 @@ _mvn-clean:
 	# Clear the "mapreduce/target" directory.
 	@docker run -it -v "$(shell pwd)/mapreduce":/usr/src/tmp alpine find /usr/src/tmp/target /usr/src/tmp/dependency-reduced-pom.xml -delete || exit 0
 
-${DATA_FILES}:
-	@echo "You do not have the needed input files."
-	@echo "1. Move Questions.csv, Answers.csv and Tags.csv into \"jobs/data\" folder."
-	@echo "2. Run the preprocessing script. You can use the Docker image to do that or use your own Python binaries."
-	@printf "\tDocker\t\t: make preprocess\n"
-	@printf "\tOR\n"
-	@printf "\tLocal Python\t: python3 python/preprocess.py\n"
-	exit 1
 
-.PHONY: all ready up move-data mvn copy-jar preprocess clean users-question-score-sum question-tfidf question-statistics answer-statistics wc-answers wc-questions-body wc-questions-title yearly-trend-topics _mvn-package _mvn-clean
+.PHONY: all ready run up move-data mvn copy-jar preprocess clean users-question-score-sum question-tfidf question-statistics answer-statistics wc-answers wc-questions-body wc-questions-title yearly-trend-topics _mvn-package _mvn-clean

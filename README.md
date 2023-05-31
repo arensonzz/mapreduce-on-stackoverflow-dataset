@@ -10,9 +10,8 @@ and different descriptive statistics methods based on the MapReduce Framework.
 
 - [About](#about)
 - [Requirements](#requirements)
-- [Run the Example Map-Reduce Job on the Cluster](#run-the-example-map-reduce-job-on-the-cluster)
+- [Run the Application](#run-the-application)
 - [Monitor Hadoop Cluster by WebUI](#monitor-hadoop-cluster-by-webui)
-- [Features](#features)
 - [Technologies](#technologies)
 - [License](#license)
 - [Credits](#credits)
@@ -34,14 +33,27 @@ You can download [Docker Desktop for Mac](https://docs.docker.com/desktop/instal
 ## Run the Application
 
 1. First you must start the Hadoop Cluster, and build Java program with Maven. 
-    To do this you can run `make ready`. This will pull
-    the images from Docker Hub and then start needed nodes. 
+    
+    To do this you can run: `make ready`
+
+    This will pull the images from Docker Hub and then start needed nodes. 
     This process might take few minutes if you are running it for the first time.
     After the pull is complete, it will wait until all nodes are ready.
 
-1. After the cluster is up, you should start the GUI. To do that
-    simply run `make run`.
+1. After the cluster is up, you should start the GUI. 
 
+    To do that simply run: `make run`
+
+1. Before you run the MapReduce jobs you have to insert input data into HDFS. 
+
+    Small samples of input files are located in `jobs/data`. To insert them, use the file selector from GUI and give 
+    any destination path for where to upload files. 
+    Or you can run `make move-data` to upload them into the default `/input/` path.
+
+    Full files can be downloaded from [StackSample: 10% of Stack Overflow Q&A](https://www.kaggle.com/datasets/stackoverflow/stacksample).
+    Before you insert full files, extract them into `jobs/data` and run: `make preprocess` to get them ready for 
+    MapReduce jobs. Preprocessed files can be found as `jobs/data/QuestionsPre.csv` and `jobs/data/AnswersPre.csv`.
+    
 1. To stop the nodes and delete output files, run `make clean`.
 
 ## Monitor Hadoop Cluster by WebUI
